@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+cd /opt/Lucia-Notify
+exec ./lucia-notify "$@"

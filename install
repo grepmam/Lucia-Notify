@@ -1,0 +1,39 @@
+#!/bin/bash
+
+LUCIA_DIRECTORY=/opt/Lucia-Notify
+LUCIA_EXECUTABLE=lucia
+LUCIA_SL_DIRECTORY=/usr/bin
+
+
+# Check privileges
+
+if [ $(id -u) -ne 0 ]; then
+    echo '[x] Run the script with sudo'
+    exit 1;
+fi
+
+# Install dependencies
+
+echo '[*] Installing dependencies...'
+
+cpan DBI Net::DBus &>/dev/null
+
+echo '[+] Dependencies installed'
+
+# Create Directory
+
+mkdir $LUCIA_DIRECTORY &>/dev/null
+
+if [ $? -ne 0 ]; then
+    rm --recursive --force $LUCIA_DIRECTORY
+    mkdir $LUCIA_DIRECTORY
+fi
+
+echo '[+] Directory created'
+
+# Copy files and create executable
+
+cp --recursive . $LUCIA_DIRECTORY &&
+ln --symbolic --force $LUCIA_DIRECTORY/$LUCIA_EXECUTABLE $LUCIA_SL_DIRECTORY/lucia &>/dev/null
+
+echo '[+] Lucia Notify has been installed'

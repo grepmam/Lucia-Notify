@@ -1,0 +1,117 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+
+use lib './lib';
+use Main;
+use Utils;
+
+
+
+my %args = ();
+my $status;
+
+GetOptions(
+    \%args,
+    'bugs:s',
+    'bugid|b:i',
+    'user|u:s',
+    'time:i',
+    'testing|t',
+    'debug|d',
+    'sound|s',
+    'no-banner',
+    'version|v',
+    'help|h'
+);
+
+$args{time} ||= 30;
+
+
+if ( not $args{'no-banner'} ) {
+    Utils::display_banner;
+}
+
+
+if ( $args{testing} ) {
+    Main::notify_for_testing({
+        sound => $args{sound},
+        debug => $args{debug}
+    });
+    exit;
+}
+
+
+if ( $args{version} ) {
+    Utils::display_version;
+    exit;
+}
+
+
+if ( $args{help} ) {
+    Utils::display_options;
+    exit;
+}
+
+
+if ( defined $args{bugs} ) {
+
+    if ( not $args{bugs} ) {
+        print 'Argument syntax error: --bugs <bugs>';
+        exit 1;
+    }
+
+    $status = Main::notify_for_bugs({
+        bugs_string => $args{bugs},
+        time        => $args{time},
+        port        => $args{port},
+        sound       => $args{sound},
+        debug       => $args{debug}
+    });
+
+    exit $status;
+}
+
+
+if ( defined $args{user} ) {
+
+    if ( not $args{user} ) {
+        print 'Argument syntax error: --user <nlastname>';
+        exit 1;
+    }
+
+    $status = Main::notify_for_user_bugs({
+        username => $args{user},
+        time     => $args{time},
+        sound    => $args{sound},
+        debug    => $args{debug}
+    });
+
+    exit $status;
+
+}
+
+
+if ( defined $args{bugid} ) {
+
+    if ( not $args{bugid} ) {
+        print 'Argument syntax error: --bugid <bug_id>';
+        exit 1;
+    }
+
+    $status = Main::notify_for_bug({
+        bugid => $args{bugid},
+        time  => $args{time},
+        sound => $args{sound},
+        debug => $args{debug}
+    });
+
+    exit $status;
+
+}
+
+
+print "USAGE: ./lucia-notify [OPTIONS]\n";
+exit 1;
