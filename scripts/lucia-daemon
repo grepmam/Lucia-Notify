@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cd $HOME/Lucia-Notify/
+export $(grep -v '^#' .env | xargs -d '\n')
+
+if [[ "$LUCIA_SOUND" = true ]]; then SOUND_PARAM='--sound'; fi
+if [[ "$LUCIA_NOBANNER" = true ]]; then BANNER_PARAM='--no-banner'; fi
+if [[ "$LUCIA_NOGREETING" = true ]]; then GREETING_PARAM='--no-greeting'; fi
+
+exec ./lucia-notify --user $LUCIA_USERNAME $SOUND_PARAM --time $LUCIA_TIME $BANNER_PARAM $GREETING_PARAM 

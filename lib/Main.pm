@@ -29,10 +29,11 @@ use constant MIN_TIME_PER_QUERY => 10;
 
 my $session_is_active = 1;
 
-$SIG{INT} = sub {
+local $SIG{INT} = sub {
     $session_is_active = 0;
     print "\n[+] Thank you for using Lucia Notify\n";
 };
+
 
 my $notify = Notify->new;
 
@@ -75,6 +76,7 @@ sub notify_for_testing {
 
 
     $notify->set_sound($sound);
+    $notify->set_urgency(Notify::LOW);
     $notify->notify;
 
 
@@ -105,6 +107,7 @@ sub notify_for_testing {
 #       time: query time to the DB
 #       sound: notification tone
 #       debug: debug mode
+#       nogreeting: dont display greeting
 #
 #   <- status: SCALAR
 #       Exit Status. 0 (Success) or 1 (Failure).
@@ -121,8 +124,7 @@ sub notify_for_bugs {
     $sound = $args->{sound};
     $debug = $args->{debug};
 
-
-    notify_greeting();
+    if ( not $args->{nogreeting} ) { notify_greeting(); }
 
 
     if ( $args->{bugs_string} !~ m/^(?:\d+,?)+$/ ) {
@@ -203,6 +205,7 @@ sub notify_for_bugs {
 #       time: query time to the DB
 #       sound: notification tone
 #       debug: debug mode
+#       nogreeting: dont display greeting
 #
 #   <- status: SCALAR
 #       Exit Status. 0 (Success) or 1 (Failure).
@@ -220,7 +223,7 @@ sub notify_for_user_bugs {
     $debug = $args->{debug};
 
 
-    notify_greeting();
+    if ( not $args->{nogreeting} ) { notify_greeting(); }
 
 
     my $ud = UserDao->new;
@@ -251,11 +254,15 @@ sub notify_for_user_bugs {
 
     }
 
-
     my $bugs;
     my $bd = BugDao->new;
 
     while ( $session_is_active ) {
+
+        $bugs = $bd->get_bugs_by_userid( $user->get_id );
+        next if not @{$bugs};
+        foreach my $bug (@{$bugs}) {  notify_bug_status( $bug ); }
+
 
         Debugger::display_message(
             message  => sprintf( 'Sleeping for %d seconds before continuing to check for bugs by user %s', $time, $args->{username} ),
@@ -265,10 +272,6 @@ sub notify_for_user_bugs {
 
 
         sleep $time;
-
-        $bugs = $bd->get_bugs_by_userid( $user->get_id );
-        next if not @{$bugs};
-        foreach my $bug (@{$bugs}) { notify_bug_status( $bug ); }
 
     }
 
@@ -293,6 +296,7 @@ sub notify_for_user_bugs {
 #       time: query time to the DB
 #       sound: notification tone
 #       debug: debug mode
+#       nogreeting: dont display greeting
 #
 #   <- status: SCALAR
 #       Exit Status. 0 (Success) or 1 (Failure).
@@ -310,7 +314,7 @@ sub notify_for_bug {
     $debug = $args->{debug};
 
 
-    notify_greeting();
+    if ( not $args->{nogreeting} ) { notify_greeting(); }
 
 
     Debugger::display_message(
@@ -483,6 +487,7 @@ sub notify_bug_status {
 
     $notify->set_header($header);
     $notify->set_body($body);
+    $notify->set_urgency(Notify::URGENCY);
     $notify->set_sound($sound);
     $notify->notify;
 

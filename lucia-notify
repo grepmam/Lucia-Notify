@@ -23,6 +23,7 @@ GetOptions(
     'debug|d',
     'sound|s',
     'no-banner',
+    'no-greeting',
     'version|v',
     'help|h'
 );
@@ -37,8 +38,8 @@ if ( not $args{'no-banner'} ) {
 
 if ( $args{testing} ) {
     Main::notify_for_testing({
-        sound => $args{sound},
-        debug => $args{debug}
+        sound    => $args{sound},
+        debug    => $args{debug},
     });
     exit;
 }
@@ -68,7 +69,8 @@ if ( defined $args{bugs} ) {
         time        => $args{time},
         port        => $args{port},
         sound       => $args{sound},
-        debug       => $args{debug}
+        debug       => $args{debug},
+        nogreeting  => $args{'no-greeting'}
     });
 
     exit $status;
@@ -83,10 +85,11 @@ if ( defined $args{user} ) {
     }
 
     $status = Main::notify_for_user_bugs({
-        username => $args{user},
-        time     => $args{time},
-        sound    => $args{sound},
-        debug    => $args{debug}
+        username   => $args{user},
+        time       => $args{time},
+        sound      => $args{sound},
+        debug      => $args{debug},
+        nogreeting => $args{'no-greeting'}
     });
 
     exit $status;
@@ -102,10 +105,11 @@ if ( defined $args{bugid} ) {
     }
 
     $status = Main::notify_for_bug({
-        bugid => $args{bugid},
-        time  => $args{time},
-        sound => $args{sound},
-        debug => $args{debug}
+        bugid      => $args{bugid},
+        time       => $args{time},
+        sound      => $args{sound},
+        debug      => $args{debug},
+        nogreeting => $args{'no-greeting'}
     });
 
     exit $status;

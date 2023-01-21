@@ -1,39 +1,36 @@
 #!/bin/bash
 
-LUCIA_DIRECTORY=/opt/Lucia-Notify
-LUCIA_EXECUTABLE=lucia
-LUCIA_SL_DIRECTORY=/usr/bin
+#########################################
+#                                       #
+#            LUCIA INSTALLER            #
+#                                       #
+#########################################
 
 
-# Check privileges
+LUCIA_INSTALL_DIRECTORY=$HOME/Lucia-Notify
 
-if [ $(id -u) -ne 0 ]; then
-    echo '[x] Run the script with sudo'
-    exit 1;
-fi
-
-# Install dependencies
 
 echo '[*] Installing dependencies...'
-
-cpan DBI Net::DBus &>/dev/null
-
+cpan DBI Net::DBus Dotenv &>/dev/null
+if [ $? -ne 0 ]; then
+    echo '[x] An error occurred while installing dependencies'
+    exit 1
+fi
 echo '[+] Dependencies installed'
 
-# Create Directory
 
-mkdir $LUCIA_DIRECTORY &>/dev/null
-
+mkdir $LUCIA_INSTALL_DIRECTORY &>/dev/null
 if [ $? -ne 0 ]; then
-    rm --recursive --force $LUCIA_DIRECTORY
-    mkdir $LUCIA_DIRECTORY
+    rm --recursive --force $LUCIA_INSTALL_DIRECTORY
+    mkdir $LUCIA_INSTALL_DIRECTORY
 fi
-
 echo '[+] Directory created'
 
-# Copy files and create executable
 
-cp --recursive . $LUCIA_DIRECTORY &&
-ln --symbolic --force $LUCIA_DIRECTORY/$LUCIA_EXECUTABLE $LUCIA_SL_DIRECTORY/lucia &>/dev/null
+cp --recursive . $LUCIA_INSTALL_DIRECTORY
+echo '[+] Files copied'
+
+
+echo "export PATH=$PATH:$LUCIA_INSTALL_DIRECTORY/scripts" >> ~/.bashrc
 
 echo '[+] Lucia Notify has been installed'

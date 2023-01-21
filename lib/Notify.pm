@@ -7,6 +7,16 @@ use Cwd;
 use File::Which;
 use Net::DBus;
 
+# Levels
+
+use constant {
+
+    LOW     => Net::DBus::dbus_byte(0),
+    NORMAL  => Net::DBus::dbus_byte(1),
+    URGENCY => Net::DBus::dbus_byte(2)
+
+};
+
 
 sub new {
 
@@ -14,15 +24,15 @@ sub new {
 
     my $self = {
 
-        _app_name => '',
-        _replace_id => 0,
-        _app_icon => Cwd::abs_path('.') . '/icons/icon.png',
-        _header => 'Hello! I am the nun Lucia',
-        _body => 'This is a test of how I will notify you.',
-        _actions => [],
-        _hints => { urgency => 'critical' },
-        _expire_timeout => 18000,
-        _sound => 0,
+        _app_name       => '',
+        _replace_id     => 0,
+        _app_icon       => Cwd::abs_path('.') . '/icons/icon.png',
+        _header         => 'Hello! I am the nun Lucia',
+        _body           => 'This is a test of how I will notify you.',
+        _actions        => [],
+        _hints          => { 'urgency' => NORMAL },
+        _expire_timeout => 25000,
+        _sound          => 0
 
     };
 
@@ -89,19 +99,10 @@ sub set_body {
 }
 
 
-sub set_action {
+sub set_urgency {
 
-    my ($self, $action) = @_;
-    #$self->{_} = $action;
-    return;
-
-}
-
-
-sub set_hint {
-
-    my ($self, $hint) = @_;
-    $self->{_hint}->{urgency} = $hint;
+    my ($self, $urgency) = @_;
+    $self->{_hints}->{urgency} = $urgency;
     return;
 
 }

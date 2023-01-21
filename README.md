@@ -20,6 +20,18 @@ To install, just run:
 ./install
 ```
 
+## Configure
+
+There is an .env file in the main directory that you will need to use to configure the database:
+
+```
+DATABASE_NAME=
+DATABASE_HOST=
+DATABASE_PORT=
+DATABASE_USER=
+DATABASE_PASS=
+```
+
 ## Usage
 
 ### Notify for one bug
@@ -80,9 +92,63 @@ Due to the expensive work of querying the database every millisecond, there is a
 lucia --bugid 19011 --time 20
 ```
 
+## Daemon mode
+
+
+***User**: All very nice, but I don't like having to start the script every time I turn on the computer. Is there any way to avoid that?*
+
+Yes, with this mode you can forget about such problems. I'll show you how.*
+
+
+We will copy the .services into the **~/.config/systemd/user/** folder. Create it if it doesn't exist:
+
+```bash
+cp --force systemd/*.service $HOME/.config/systemd/user/
+```
+Modify the user in the templates. They will find it as "**\<user\>**":
+
+```bash
+systemctl --user edit --full x_start
+systemctl --user edit --full lucia
+```
+
+We let Systemd know that the services are there:
+
+```bash
+systemctl --user daemon-reload
+```
+We enable them to run after boot:
+
+```bash
+systemctl --user enable x_start
+systemctl --user enable lucia
+```
+
+We start the services;
+
+```bash
+systemctl --user start x_start
+systemctl --user start lucia
+```
+
+***Note***: an automatic version of the process is being prepared.
+
+Then you have to configure the variables of the .env file to your liking, only those with the LUCIA prefix:
+
+```
+LUCIA_USERNAME=
+LUCIA_TIME=20
+LUCIA_SOUND=true
+LUCIA_NOBANNER=true
+LUCIA_NOGREETING=true
+```
+
+As a recommendation, just change the username.
+
 ## Examples
 
 ```bash
 lucia -u lbellucci -s -d 
 lucia --bugs '18111,10999' --sound --time 15 --debug
 ```
+

@@ -11,12 +11,16 @@ use warnings;
 # --------------------------------------------
 
 
-my $SOFTWARE_NAME  = 'Lucia Notify';
-my $CREATOR        = 'grepmam';
-my $COLLABORATORS  = 'andrezgz';
-my $VERSION        = '1.0.0';
-my $VERSION_STATUS = 'unstable';
-my $VERSION_NAME   = 'Frigg';
+use constant {
+
+    SOFTWARE_NAME  => 'Lucia Notify',
+    CREATOR        => 'grepmam',
+    COLLABORATORS  => 'andrezgz',
+    VERSION        => '1.0.0',
+    VERSION_STATUS => 'stable',
+    VERSION_NAME   => 'Frigg'
+
+};
 
 
 
@@ -25,7 +29,7 @@ my $VERSION_NAME   = 'Frigg';
 
 sub display_banner {
 
-    my $banner = qq|  
+    my $banner = sprintf '
 
 
     ██▓     █    ██  ▄████▄   ██▓ ▄▄▄      
@@ -39,15 +43,15 @@ sub display_banner {
        ░  ░   ░     ░ ░       ░        ░  ░
                     ░                     
 
-            Created by: $CREATOR 
+            Created by: %s 
 
-          Collaborators: $COLLABORATORS
+          Collaborators: %s
 
-|;
+', CREATOR, COLLABORATORS;
 
     print $banner;
 
-    return 1;
+    return 0;
 
 }
 
@@ -73,6 +77,7 @@ ARGUMENTS:
   -t, --testing                     Try the Lucia Notifier
   -s, --sound                       Activate sound notification
   -d, --debug                       Activate debugging mode
+  --no-greeting                     Don't display Lucia greeting
   --no-banner                       Don't display banner
   -v, --version                     Display version
   -h, --help                        Display this
@@ -95,9 +100,9 @@ EXAMPLES:
 
 sub display_version {
 
-    print "$SOFTWARE_NAME version $VERSION-$VERSION_STATUS $VERSION_NAME\n\n";
+    print sprintf( '%s version %s-%s %s', SOFTWARE_NAME, VERSION, VERSION_STATUS, VERSION_NAME ) . "\n";
 
-    return 1;
+    return 0;
 
 }
 
