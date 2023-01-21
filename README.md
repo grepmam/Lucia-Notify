@@ -97,13 +97,24 @@ lucia --bugid 19011 --time 20
 
 ***User**: All very nice, but I don't like having to start the script every time I turn on the computer. Is there any way to avoid that?*
 
-Yes, with this mode you can forget about such problems. I'll show you how.*
+*Yes, with this mode you can forget about such problems. I'll show you how.*
 
+First you have to set the variables of the .env file to your liking, only those with the LUCIA prefix:
+
+```
+LUCIA_USERNAME=
+LUCIA_TIME=20
+LUCIA_SOUND=true
+LUCIA_NOBANNER=true
+LUCIA_NOGREETING=true
+```
+
+As a recommendation, just change the username.
 
 We will copy the .services into the **~/.config/systemd/user/** folder. Create it if it doesn't exist:
 
 ```bash
-cp --force systemd/*.service $HOME/.config/systemd/user/
+cp --force systemd/* $HOME/.config/systemd/user/
 ```
 Modify the user in the templates. They will find it as "**\<user\>**":
 
@@ -132,18 +143,6 @@ systemctl --user start lucia
 ```
 
 ***Note***: an automatic version of the process is being prepared.
-
-Then you have to configure the variables of the .env file to your liking, only those with the LUCIA prefix:
-
-```
-LUCIA_USERNAME=
-LUCIA_TIME=20
-LUCIA_SOUND=true
-LUCIA_NOBANNER=true
-LUCIA_NOGREETING=true
-```
-
-As a recommendation, just change the username.
 
 ## Examples
 

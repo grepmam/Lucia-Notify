@@ -16,7 +16,7 @@ use constant {
     SOFTWARE_NAME  => 'Lucia Notify',
     CREATOR        => 'grepmam',
     COLLABORATORS  => 'andrezgz',
-    VERSION        => '1.0.0',
+    VERSION        => '1.1.0',
     VERSION_STATUS => 'stable',
     VERSION_NAME   => 'Frigg'
 

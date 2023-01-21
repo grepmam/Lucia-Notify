@@ -1,5 +1,5 @@
 [Unit]
-Description=Lucia Notify v1.0.0 stable
+Description=Lucia Notify v1.1.0 stable
 Requires=x_start.service
 After=x_start.service
 

@@ -587,6 +587,7 @@ sub get_alias_from_bug_status {
     return 'READY FOR QA'  if $status eq 'RESOLVED' && $resolution eq 'FIXED';
     return 'IN QA'         if $status eq 'RESOLVED' && $resolution eq 'FIXED' && $tester ne 'Sin Asignar';
     return 'DONE'          if $status eq 'VERIFIED' && $resolution eq 'FIXED';
+    return 'AWAITING'      if $status eq 'REOPENED-MERGE';
     return;
 
 }

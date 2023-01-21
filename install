@@ -11,7 +11,8 @@ LUCIA_INSTALL_DIRECTORY=$HOME/Lucia-Notify
 
 
 echo '[*] Installing dependencies...'
-cpan DBI Net::DBus Dotenv &>/dev/null
+sudo apt install libmysqlclient-dev libdbi-perl libdbd-mysql-perl -y &>/dev/null 
+echo 'yes local::lib' | sudo cpan Net::DBus Dotenv File::Which &>/dev/null
 if [ $? -ne 0 ]; then
     echo '[x] An error occurred while installing dependencies'
     exit 1
