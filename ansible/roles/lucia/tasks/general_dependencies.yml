@@ -1,0 +1,13 @@
+---
+
+- name: Install general dependencies...
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - libmysqlclient-dev
+      - libdbi-perl
+      - libdbd-mysql-perl
+      - mpg123
+  tags: lucia
+
+...

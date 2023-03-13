@@ -1,10 +1,29 @@
 #!/bin/bash
 
-cd $HOME/Lucia-Notify/
+FILENAME='.env'
+
+cd $HOME/Lucia-Notify/ 
+
+if ! [[ -e $FILENAME ]]; then
+    echo "File $FILENAME does not exists"
+    exit 1
+fi
+
 export $(grep -v '^#' .env | xargs -d '\n')
+
+if   [[ "$LUCIA_USER_OPTION" = true ]]; then MAIN_PARAM="--user $LUCIA_USERNAME" 
+elif [[ "$LUCIA_BUGS_OPTION" = true ]]; then MAIN_PARAM="--bugs $LUCIA_BUGS"
+elif [[ "$LUCIA_BUG_OPTION"  = true ]]; then MAIN_PARAM="--bugid $LUCIA_BUG_ID"
+else
+    echo 'Cant continue if you dont set a main option'
+    exit 1
+fi
 
 if [[ "$LUCIA_SOUND" = true ]]; then SOUND_PARAM='--sound'; fi
 if [[ "$LUCIA_NOBANNER" = true ]]; then BANNER_PARAM='--no-banner'; fi
 if [[ "$LUCIA_NOGREETING" = true ]]; then GREETING_PARAM='--no-greeting'; fi
+if [[ "$LUCIA_VOICE" = true ]]; then VOICE_PARAM='--voice'; fi
 
-exec ./lucia-notify --user $LUCIA_USERNAME $SOUND_PARAM --time $LUCIA_TIME $BANNER_PARAM $GREETING_PARAM 
+LANG_PARAM="--lang $LUCIA_LANG"
+
+exec ./lucia-notify $MAIN_PARAM $SOUND_PARAM --time $LUCIA_TIME $BANNER_PARAM $GREETING_PARAM $VOICE_PARAM $LANG_PARAM

@@ -1,0 +1,10 @@
+---
+
+- name: Create user systemd directory...
+  ansible.builtin.file:
+    path: '{{ systemd_user_config }}/systemd/user'
+    state: directory
+    mode: 0700
+  tags: daemon
+
+...

@@ -1,0 +1,15 @@
+---
+
+- name: Install Perl dependencies...
+  become: true
+  ansible.builtin.command: cpan {{ item }}
+  loop:
+    - Net::DBus
+    - Dotenv
+    - File::Which
+    - Audio::Play::MPG123
+    - LWP::Simple
+    - JSON::MaybeXS
+  tags: lucia
+
+...

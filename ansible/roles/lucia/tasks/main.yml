@@ -1,0 +1,7 @@
+---
+
+- ansible.builtin.import_tasks: general_dependencies.yml
+- ansible.builtin.import_tasks: perl_dependencies.yml
+- ansible.builtin.import_tasks: repository.yml
+
+...

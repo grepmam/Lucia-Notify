@@ -1,0 +1,7 @@
+---
+
+lucia_repository: https://github.com/GrepProjects/Lucia-Notify.git
+lucia_branch: main
+lucia_install_directory: '{{ lookup("env", "HOME") }}/Lucia-Notify'
+
+...

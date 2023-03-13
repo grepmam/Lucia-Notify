@@ -28,17 +28,18 @@ sub get_bugs_by_userid {
 
     my $query_template = q|
         SELECT b.bug_id, b.bug_status, b.short_desc,
-               b.rep_platform, b.resolution,
-               p.realname
+               b.rep_platform, b.resolution
         FROM bugs as b
-        INNER JOIN profiles as p
-        ON p.userid = b.assigned_to
-        WHERE b.assigned_to = ? AND
-              b.bug_status <> 'CLOSED'
+        LEFT JOIN cc as c
+        ON c.bug_id = b.bug_id
+        LEFT JOIN profiles as p
+        ON p.userid = c.who
+        WHERE ( b.assigned_to = ? OR c.who = ? )
+        AND b.bug_status <> 'CLOSED'
     |;
 
     my $sth = $conn->prepare($query_template);
-    $sth->execute($userid);
+    $sth->execute($userid, $userid);
 
     my @bugs;
 
