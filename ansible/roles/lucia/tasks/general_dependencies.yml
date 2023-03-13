@@ -1,0 +1,23 @@
+---
+
+- name: Add Perl repository to APT...
+  become: true
+  ansible.builtin.apt_repository:
+    repo: deb http://archive.ubuntu.com/ubuntu/ focal universe
+    state: present
+    filename: perl-universe
+    update_cache: true
+  tags: lucia
+
+- name: Install general dependencies...
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - cpanminus
+      - libmysqlclient-dev
+      - libdbi-perl
+      - libdbd-mysql-perl
+      - mpg123
+  tags: lucia
+
+...

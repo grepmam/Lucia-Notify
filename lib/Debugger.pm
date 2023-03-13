@@ -1,3 +1,8 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2023 - Grepmam
+
+
 package Debugger;
 
 use strict;
@@ -25,21 +30,20 @@ my %type_msgs = (
 #
 #   Subroutine DISPLAY_MESSAGE
 #
+# --------------------------------------------     
+#
+#   [Description]
+# 
+#   Displays a message of the specified type with a current date and time
+#
 # --------------------------------------------
 #
-#   Show message in console
+#   @param args -> hash:
+#     - message -> string: The message to be displayed
+#     - type -> string: The type of message (error, warning, information, etc.)
+#     - activate -> integer: Flag indicating whether the message should be displayed or not
 #
-# --------------------------------------------
-#
-#   -> args: HASH
-#       message: text to display 
-#       type: type of message. Example: success, 
-#           failure, warning, info
-#       activate: Check if you want to show the 
-#           message
-#
-#   <- status:
-#       completion status. 1 (Success) or 0 (Failure)
+#   @return status -> integer:
 #
 # --------------------------------------------
 
@@ -49,10 +53,14 @@ sub display_message {
     my %args = @_;
     my ( $message, $type, $activate ) = @args{qw/message type activate/};
 
+
     return unless $activate;
     return unless exists $type_msgs{$type};
 
-    print "[$type_msgs{$type}] $message\n";
+    my $timestamp = localtime;
+    my $log_message = "[$type_msgs{$type}] [$timestamp] $message\n";
+
+    print $log_message;
 
     return 1;
 

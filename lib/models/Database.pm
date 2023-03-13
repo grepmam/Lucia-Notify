@@ -2,16 +2,39 @@ package Database;
 
 use strict;
 use warnings;
+
 use DBI;
 use Dotenv;
 
 use feature 'state';
 
+# --------------------------------------------
+#
+#   CONSTANTS
+#
+# --------------------------------------------
 
-%ENV = %{ Dotenv->parse( '.env', \%ENV ) };
+# File config
+
+use constant FILENAME => '.env';
+
+# Database
 
 use constant RECONNECT_TIME => 20;
 
+
+# --------------------------------------------
+
+
+if ( not -e FILENAME ) {
+    print sprintf 'File %s does not exists', FILENAME;
+    exit 1;
+}
+
+%ENV = %{ Dotenv->parse( '.env', \%ENV ) };
+
+
+# --------------------------------------------
 
 sub new {
 
@@ -36,9 +59,11 @@ sub new {
 
     my $dbh;
 
-    while ( not defined (
-            $dbh = DBI->connect($dsn, @db_data{ qw|user pass| })
-        )) { sleep RECONNECT_TIME; };
+    while ( ! defined ( $dbh = DBI->connect(
+                $dsn, @db_data{ qw|user pass|},
+                { PrintError => 0, HandleError => \&display_db_error }) )
+          ) { sleep RECONNECT_TIME; }
+
 
     $dbh->{mysql_auto_reconnect} = 1;
     $dbh->do(q|SET NAMES 'latin1' COLLATE 'latin1_spanish_ci'|);
@@ -55,6 +80,9 @@ sub get_connection {
     return $self->{_conn};
 
 }
+
+
+sub display_db_error { print "Error connecting to DB. Retrying in " . RECONNECT_TIME . " seconds...\n"; }
 
 
 1;

@@ -3,11 +3,12 @@ package Notify;
 use strict;
 use warnings;
 
-use Cwd;
+use Encode qw(decode);
 use File::Which;
 use Net::DBus;
 
-# Levels
+use Utils;
+
 
 use constant {
 
@@ -26,9 +27,9 @@ sub new {
 
         _app_name       => '',
         _replace_id     => 0,
-        _app_icon       => Cwd::abs_path('.') . '/icons/icon.png',
-        _header         => 'Hello! I am the nun Lucia',
-        _body           => 'This is a test of how I will notify you.',
+        _app_icon       => Utils::get_abs_path( 'icons/icon.png' ),
+        _header         => '',
+        _body           => '',
         _actions        => [],
         _hints          => { 'urgency' => NORMAL },
         _expire_timeout => 25000,
@@ -75,7 +76,7 @@ sub set_replace_id {
 sub set_app_icon {
 
     my ($self, $app_icon) = @_;
-    $self->{_app_icon} = $app_icon;
+    $self->{_app_icon} = Utils::get_abs_path $app_icon;
     return;
 
 }
@@ -84,7 +85,7 @@ sub set_app_icon {
 sub set_header {
 
     my ($self, $header) = @_;
-    $self->{_header} = $header;
+    $self->{_header} = decode 'cp1252', $header;
     return;
 
 }
@@ -149,7 +150,7 @@ sub notify {
 
         my $paplay_path = which 'paplay';
         system $paplay_path,
-        Cwd::abs_path('.') . '/sounds/church_notification.ogg';
+        Utils::get_abs_path 'sounds/church_notification.ogg';
 
     }
 

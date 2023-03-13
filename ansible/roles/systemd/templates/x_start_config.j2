@@ -1,0 +1,9 @@
+[Unit]
+Description=Monitor X server start
+
+[Service]
+Type=oneshot
+ExecStart={{ systemd_x_start_script }}
+
+[Install]
+WantedBy=default.target

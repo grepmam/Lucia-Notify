@@ -1,0 +1,25 @@
+---
+
+lucia_user_option: 'true'
+lucia_username: lbelucci
+
+lucia_bugs_option: 'false'
+lucia_bugs: '31112,42211'
+
+lucia_bug_option: 'false'
+lucia_bug_id: 17113
+
+lucia_time: 25
+lucia_sound: 'true'
+lucia_no_banner: 'true'
+lucia_no_greeting: 'true'
+lucia_voice: 'true'
+lucia_lang: en
+
+lucia_database_name: test
+lucia_database_host: localhost
+lucia_database_port: 3306
+lucia_database_user: test
+lucia_database_pass: test
+
+...

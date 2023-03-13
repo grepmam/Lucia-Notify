@@ -1,19 +1,43 @@
 #!/usr/bin/perl
+#
+# Copyright (c) 2023 - Grepmam 
+#
+# This is a perl script that is used to send notifications 
+# of different bug related events.
+
 
 use strict;
 use warnings;
+
 use Getopt::Long;
 
 use lib './lib';
-use Main;
+use Lucia;
 use Utils;
-
 
 
 my %args = ();
 my $status;
 
-GetOptions(
+Getopt::Long::Configure 'pass_through', 'noauto_abbrev';
+
+# The script processes the following command line arguments:
+#
+# bugs         : Allows you to specify a list of bugs separated by commas.
+# bugid or b   : Allows you to specify a specific bug ID.
+# user or u    : Allows you to specify a specific username.
+# time         : Allows to specify the time interval for queries to the database.
+# testing or t : Indicates that test notifications should be sent.
+# debug or d   : Indicates whether to display debugging messages.
+# sound or s   : Allows you to activate a notification sound.
+# voice or v   : Allows you to activate Lucia's voice.
+# lang or l    : Allows to change Lucia's language.
+# no-banner    : Indicates that the banner should not be displayed when starting the script.
+# no-greeting  : Indicates that the greeting message should not be displayed.
+# version      : Shows the version of the script.
+# help or h    : displays help on the available arguments.
+
+GetOptions
     \%args,
     'bugs:s',
     'bugid|b:i',
@@ -22,13 +46,13 @@ GetOptions(
     'testing|t',
     'debug|d',
     'sound|s',
+    'voice|v',
+    'lang|l:s',
     'no-banner',
     'no-greeting',
-    'version|v',
+    'version',
     'help|h'
-);
-
-$args{time} ||= 30;
+;
 
 
 if ( not $args{'no-banner'} ) {
@@ -37,10 +61,16 @@ if ( not $args{'no-banner'} ) {
 
 
 if ( $args{testing} ) {
-    Main::notify_for_testing({
-        sound    => $args{sound},
-        debug    => $args{debug},
-    });
+
+    my $lucia = Lucia->new(
+        sound => $args{sound},
+        voice => $args{voice},
+        lang  => $args{lang},
+        debug => $args{debug}
+    );
+
+    $lucia->notify_for_testing;
+
     exit;
 }
 
@@ -64,15 +94,18 @@ if ( defined $args{bugs} ) {
         exit 1;
     }
 
-    $status = Main::notify_for_bugs({
-        bugs_string => $args{bugs},
-        time        => $args{time},
-        port        => $args{port},
-        sound       => $args{sound},
-        debug       => $args{debug},
-        nogreeting  => $args{'no-greeting'}
-    });
+    my $lucia = Lucia->new(
+        time       => $args{time},
+        sound      => $args{sound},
+        voice      => $args{voice},
+        lang       => $args{lang},
+        debug      => $args{debug},
+        nogreeting => $args{'no-greeting'}
+    );
 
+    $status = $lucia->notify_for_bugs( $args{bugs} );
+
+    $status = $status == 1 ? 0 : 1;
     exit $status;
 }
 
@@ -84,14 +117,18 @@ if ( defined $args{user} ) {
         exit 1;
     }
 
-    $status = Main::notify_for_user_bugs({
-        username   => $args{user},
+    my $lucia = Lucia->new(
         time       => $args{time},
         sound      => $args{sound},
+        voice      => $args{voice},
+        lang       => $args{lang},
         debug      => $args{debug},
         nogreeting => $args{'no-greeting'}
-    });
+    );
 
+    $status = $lucia->notify_for_user_bugs( $args{user} );
+
+    $status = $status == 1 ? 0 : 1;
     exit $status;
 
 }
@@ -104,14 +141,18 @@ if ( defined $args{bugid} ) {
         exit 1;
     }
 
-    $status = Main::notify_for_bug({
-        bugid      => $args{bugid},
+    my $lucia = Lucia->new(
         time       => $args{time},
         sound      => $args{sound},
+        voice      => $args{voice},
+        lang       => $args{lang},
         debug      => $args{debug},
         nogreeting => $args{'no-greeting'}
-    });
+    );
 
+    $status = $lucia->notify_for_bug( $args{bugid} );
+
+    $status = $status == 1 ? 0 : 1;
     exit $status;
 
 }

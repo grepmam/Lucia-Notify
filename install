@@ -9,10 +9,12 @@
 
 LUCIA_INSTALL_DIRECTORY=$HOME/Lucia-Notify
 
-
-echo '[*] Installing dependencies...'
-sudo apt install libmysqlclient-dev libdbi-perl libdbd-mysql-perl -y &>/dev/null 
-echo 'yes local::lib' | sudo cpan Net::DBus Dotenv File::Which &>/dev/null
+echo '[*] Adding Perl repository to APT...'
+sudo add-apt-repository universe
+echo '[*] Installing general dependencies...'
+sudo apt install cpanminus libmysqlclient-dev libdbi-perl libdbd-mysql-perl mpg123 -y &>/dev/null
+echo '[*] Installing Perl dependencies with CPANM'
+sudo cpanm Net::DBus Dotenv File::Which Audio::Play::MPG123 LWP::Simple JSON JSON::MaybeXS &>/dev/null
 if [ $? -ne 0 ]; then
     echo '[x] An error occurred while installing dependencies'
     exit 1
@@ -31,7 +33,5 @@ echo '[+] Directory created'
 cp --recursive . $LUCIA_INSTALL_DIRECTORY
 echo '[+] Files copied'
 
-
-echo "export PATH=$PATH:$LUCIA_INSTALL_DIRECTORY/scripts" >> ~/.bashrc
 
 echo '[+] Lucia Notify has been installed'

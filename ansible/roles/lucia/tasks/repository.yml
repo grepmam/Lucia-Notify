@@ -1,0 +1,12 @@
+---
+
+- name: Clone repository...
+  ansible.builtin.git:
+    repo: '{{ lucia_repository }}'
+    dest: '{{ lucia_install_directory }}'
+    clone: true
+    force: true
+    version: '{{ lucia_branch }}'
+  tags: lucia
+
+...
