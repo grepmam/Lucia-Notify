@@ -50,7 +50,7 @@ GetOptions
     'lang|l:s',
     'no-banner',
     'no-greeting',
-    'version|V',
+    'version',
     'help|h'
 ;
 

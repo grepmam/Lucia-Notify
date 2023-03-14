@@ -46,15 +46,6 @@ my %type_msgs = (
 #   @return status -> integer:
 #
 # --------------------------------------------
-#
-#   [Example]
-#
-#   notify_for_testing({
-#       sound    => 1,
-#       debug    => 0,
-#    });
-#
-# --------------------------------------------
 
 
 sub display_message {

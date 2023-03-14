@@ -2,13 +2,19 @@
 
 - name: Install Perl dependencies...
   become: true
-  ansible.builtin.command: cpan {{ item }}
+  ansible.builtin.expect:
+    command: cpan {{ item }}
+    responses:
+      (?i)yes: "yes\n"
+      (?i)no: "no\n"
+      (?i)enter: "\n"
   loop:
     - Net::DBus
     - Dotenv
     - File::Which
     - Audio::Play::MPG123
     - LWP::Simple
+    - JSON
     - JSON::MaybeXS
   tags: lucia
 
