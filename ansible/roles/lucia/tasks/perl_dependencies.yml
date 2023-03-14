@@ -1,13 +1,9 @@
 ---
 
-- name: Install Perl dependencies...
+- name: Install Perl dependencies with CPANM...
   become: true
-  ansible.builtin.expect:
-    command: cpan {{ item }}
-    responses:
-      (?i)yes: "yes\n"
-      (?i)no: "no\n"
-      (?i)enter: "\n"
+  community.general.cpanm:
+    name: '{{ item }}'
   loop:
     - Net::DBus
     - Dotenv
