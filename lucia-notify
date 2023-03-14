@@ -34,7 +34,7 @@ Getopt::Long::Configure 'pass_through', 'noauto_abbrev';
 # lang or l    : Allows to change Lucia's language.
 # no-banner    : Indicates that the banner should not be displayed when starting the script.
 # no-greeting  : Indicates that the greeting message should not be displayed.
-# version or v : Shows the version of the script.
+# version      : Shows the version of the script.
 # help or h    : displays help on the available arguments.
 
 GetOptions

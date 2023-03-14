@@ -127,7 +127,7 @@ ARGUMENTS:
   -d, --debug                       Activate debugging mode
   --no-greeting                     Don't display Lucia greeting
   --no-banner                       Don't display banner
-  -V, --version                     Display version
+  --version                         Display version
   -h, --help                        Display this
 
 
