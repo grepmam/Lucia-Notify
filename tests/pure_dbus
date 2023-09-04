@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib '../lib';
+use Lucia::Notification::DBus;
+
+
+my $dbus = Lucia::Notification::DBus->new;
+my $urgency_level = Lucia::Notification::DBus::HIGH_LEVEL;
+
+$dbus->set_app_name( 'pure_dbus' );
+$dbus->set_header( 'Pure DBus' );
+$dbus->set_body( 'This is a test with DBus' );
+$dbus->set_app_icon( 'icons/icon.png' );
+$dbus->set_urgency_level( $urgency_level );
+$dbus->set_expire_timeout( 30 );
+
+$dbus->launch_notification;

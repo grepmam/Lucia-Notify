@@ -1,5 +1,0 @@
-#!/bin/bash
-
-LUCIA_DIRECTORY=$HOME/Lucia-Notify
-cd $LUCIA_DIRECTORY
-exec ./lucia-notify "$@" 

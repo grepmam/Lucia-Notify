@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib '../lib';
+use Lucia::Lucia;
+
+my $lucia = Lucia::Lucia->new;
+$lucia->set_lang('en');
+$lucia->set_time(10);
+$lucia->active_sound(0);
+$lucia->active_voice(1);
+
+#$lucia->simulate( '17328' );
+$lucia->notify_for_bugs( '121313' );
+#$lucia->notify_for_user( 'mmartel' );

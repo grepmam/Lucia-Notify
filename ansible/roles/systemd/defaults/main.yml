@@ -1,8 +1,0 @@
----
-
-systemd_user_home: '{{ lookup("env", "HOME") }}'
-systemd_user_config: '{{ systemd_user_home }}/.config'
-systemd_lucia_script: '{{ systemd_user_home }}/Lucia-Notify/scripts/lucia-daemon'
-systemd_x_start_script: '{{ systemd_user_home }}/Lucia-Notify/scripts/x_start'
-
-...
