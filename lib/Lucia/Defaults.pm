@@ -14,8 +14,8 @@ our @EXPORT = qw(
     DEFAULT_LANGUAGE
     DEFAULT_DEBUG
     DEFAULT_NO_GREETING
-
     MIN_TIME_PER_QUERY
+    BUG_BOX_NAME
 
 );
 
@@ -29,6 +29,8 @@ use constant {
     DEFAULT_DEBUG          => 0,
     DEFAULT_NO_GREETING    => 0,
 
-    MIN_TIME_PER_QUERY     => 10
+    MIN_TIME_PER_QUERY     => 10,
+
+    BUG_BOX_NAME           => 'box.dat'
 
 };

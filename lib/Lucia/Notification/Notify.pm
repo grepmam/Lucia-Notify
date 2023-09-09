@@ -5,7 +5,7 @@ use warnings;
 
 use File::Which;
 
-use base 'Lucia::Notification::DBus';
+use parent 'Lucia::Notification::DBus';
 
 
 sub new {
@@ -28,7 +28,7 @@ sub active_sound {
     die "[x] Please provide 1 or 0\n" unless $is_active =~ /^[01]$/;
     $self->{_sound} = $is_active;
     return;
-    
+
 }
 
 
@@ -49,8 +49,8 @@ sub _play_sound {
     my $self = shift;
 
     my $mpv_path = which 'mpv';
-    my $sound_filename = Lucia::Utils::File::absolute_path( 'sounds/church_notification.ogg' );
-    system "$mpv_path --no-video $sound_filename &>/dev/null";
+    my $sound_filename = Lucia::Utils::File::absolute_path( 'resources/sounds/church_notification.ogg' );
+    system "$mpv_path --no-video $sound_filename > /dev/null 2>&1";
 
     return; 
 

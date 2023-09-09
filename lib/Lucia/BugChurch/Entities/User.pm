@@ -1,4 +1,4 @@
-package User;
+package Lucia::BugChurch::Entities::User;
 
 use strict;
 use warnings;

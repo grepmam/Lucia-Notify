@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib '../lib';
+use Lucia::ProtoTTS;
+
+my $prototts = Lucia::ProtoTTS->new;
+$prototts->set_message( 'This is a test' );
+$prototts->play;

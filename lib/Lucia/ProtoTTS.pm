@@ -84,13 +84,13 @@ sub play {
 
     my $audio_content = $self->_get_page_content( $audio_url );
     die "Could not get the content of the URL\n" unless $audio_content;
-    
+
     my $audio_filename = sprintf '/tmp/%s', $self->_get_audio_name( $audio_url );
+    print $audio_filename;
     $self->_create_tempfile( $audio_filename, $audio_content );
 
-    $self->_speak( $audio_filename );
-
-    unlink $audio_filename;
+    my $status = $self->_speak( $audio_filename );
+    #unlink $audio_filename;
 
     # Deprecated due to unknown issues 
     #my $player = Audio::Play::MPG123->new;
@@ -153,7 +153,7 @@ sub _create_tempfile {
 
     # Deprecated due to unknown issues
     #my $tempfile = File::Temp->new( SUFFIX => '.mp3' );
-    #print $tempfile $audio_content;
+    #print $tempfile $content;
     #close $tempfile;
 
     return;
@@ -166,7 +166,7 @@ sub _speak {
     my ( $self, $audio_filename ) = @_;
 
     my $mpv_path = which 'mpv';
-    system "$mpv_path --no-video $audio_filename &>/dev/null";
+    system "( $mpv_path --no-video $audio_filename && rm $audio_filename ) > /dev/null 2>&1";
 
     return;
 
