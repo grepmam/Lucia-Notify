@@ -14,7 +14,7 @@ sub new {
 
     my $self = $class->SUPER::new(@_);
     $self->{_app_icon} = Lucia::Utils::File::absolute_path( 'resources/icons/icon.png' );
-    $self->{_hints}{urgency} = Lucia::Notification::DBus::HIGH_LEVEL;
+    #$self->{_hints}{urgency} = Lucia::Notification::DBus::HIGH_LEVEL;
     $self->{_sound} = 1;
 
     return bless $self, $class;

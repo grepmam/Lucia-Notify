@@ -16,9 +16,9 @@ use constant {
     DBUS_INTERFACE => 'org.freedesktop.Notifications',
     DBUS_PATH      => '/org/freedesktop/Notifications',
 
-    LOW_LEVEL      => Net::DBus::dbus_byte(0),
-    NORMAL_LEVEL   => Net::DBus::dbus_byte(1),
-    HIGH_LEVEL     => Net::DBus::dbus_byte(2),
+    #LOW_LEVEL      => Net::DBus::dbus_byte(0),
+    #NORMAL_LEVEL   => Net::DBus::dbus_byte(1),
+    #HIGH_LEVEL     => Net::DBus::dbus_byte(2),
 
     ENCODING       => 'cp1252'
 
@@ -96,13 +96,13 @@ sub set_body {
 }
 
 
-sub set_urgency_level {
-
-    my ( $self, $level ) = @_;
-    $self->{_hints}{urgency} = $level;
-    return;
-
-}
+#sub set_urgency_level {
+#
+#    my ( $self, $level ) = @_;
+#    $self->{_hints}{urgency} = $level;
+#    return;
+#
+#}
 
 
 sub set_expire_timeout {
