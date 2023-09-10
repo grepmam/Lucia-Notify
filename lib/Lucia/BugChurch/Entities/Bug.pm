@@ -15,7 +15,6 @@ sub new {
         _rep_platform => undef,
         _resolution   => undef,
         _user         => undef,
-        _activity     => undef,
 
     }, $class;
 
@@ -69,14 +68,6 @@ sub set_user {
 
 }
 
-sub set_activity {
-
-    my ( $self, $activity ) = @_;
-    $self->{_activity} = $activity;
-    return;
-
-}
-
 sub get_id {
 
     my $self = shift;
@@ -116,13 +107,6 @@ sub get_user {
 
     my $self = shift;
     return $self->{_user};
-
-}
-
-sub get_activity {
-    
-    my $self = shift;
-    return $self->{_activity};
 
 }
 

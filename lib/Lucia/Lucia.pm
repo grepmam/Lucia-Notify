@@ -213,8 +213,15 @@ sub notify_for_user {
     $bcp->use_model('bug');
 
     while ( 1 ) {
+        $self->_wait_time_for_notification();
+
         @bugs = @{ $bcp->get_bugs_by_userid($user->get_id) };
-        next unless @bugs;
+        if ( !@bugs ) {
+            Lucia::Debugger::success(
+                sprintf('There are no bugs available for %s', $username)
+            ) if $self->{_debug};
+            next;
+        };
 
         foreach my $bug ( @bugs ) {
             # Save the bug if it doesn't exist
@@ -245,8 +252,6 @@ sub notify_for_user {
                 $self->{_time}
             )
         ) if $self->{_debug};
-
-        $self->_wait_time_for_notification();
     }
 
     return;
@@ -288,20 +293,6 @@ sub _save_bug {
     $self->{_bug_box} = retrieve(BUG_BOX_NAME);
 
     return;
-
-}
-
-sub _bug_is_new {
-
-    my ( $self, $bug ) = @_;
-
-    my $activity = $bug->get_activity;
-    my $new_assigned = $activity->get_added;
-    my $old_assigned = $activity->get_removed;
-    
-    my $current_user = $bug->get_user->get_email;
-
-    return $new_assigned eq $current_user && $old_assigned ne $current_user;
 
 }
 

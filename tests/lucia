@@ -16,4 +16,4 @@ $lucia->active_debug(1);
 
 #$lucia->simulate( '1732853244' );
 #$lucia->notify_for_bugs( '17413' );
-$lucia->notify_for_user( 'mmartel' );
+$lucia->notify_for_user( 'aholtz' );

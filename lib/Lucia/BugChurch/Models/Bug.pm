@@ -6,7 +6,6 @@ use warnings;
 use Lucia::BugChurch::Config::Database;
 use Lucia::BugChurch::Entities::Bug;
 use Lucia::BugChurch::Entities::User;
-use Lucia::BugChurch::Entities::BugsActivity;
 
 
 sub new {
@@ -62,19 +61,14 @@ sub get_bugs_by_userid {
     my $conn = $self->{_dbh}->get_connection();
     my $query_template = q|
         SELECT bu.bug_id, bu.bug_status, bu.short_desc,
-               bu.resolution, bu.rep_platform, pr.login_name, 
-               MAX(ba.bug_when), ba.added, ba.removed
+               bu.resolution, bu.rep_platform, pr.login_name
         FROM bugs bu
         LEFT JOIN cc as co
             ON co.bug_id = bu.bug_id
-        INNER JOIN bugs_activity as ba
-            ON ba.bug_id = bu.bug_id 
-           AND ba.fieldid = 16
         INNER JOIN profiles as pr
-            ON pr.userid = ba.who
+            ON pr.userid = bu.assigned_to
         WHERE ( bu.assigned_to = ? OR co.who = ? )
-            AND bu.bug_status <> 'CLOSED'
-        GROUP BY bu.bug_id;
+            AND bu.bug_status <> 'CLOSED';
     |;
 
     my $sth = $conn->prepare($query_template);
@@ -86,11 +80,6 @@ sub get_bugs_by_userid {
 
         my $user = Lucia::BugChurch::Entities::User->new;
         $user->set_email($row->{login_name});
-        #$user->set_realname($row->{realname});
-
-        my $bugs_activity = Lucia::BugChurch::Entities::BugsActivity->new;
-        $bugs_activity->set_added($row->{added});
-        $bugs_activity->set_removed($row->{removed});
 
         my $bug = Lucia::BugChurch::Entities::Bug->new;
         $bug->set_id($row->{bug_id});
@@ -99,7 +88,6 @@ sub get_bugs_by_userid {
         $bug->set_rep_platform($row->{rep_platform});
         $bug->set_resolution($row->{resolution});
         $bug->set_user($user);
-        $bug->set_activity($bugs_activity);
 
         push @bugs, $bug;
 
