@@ -155,27 +155,38 @@ sub notify_for_bugs {
     while ( @bugs = @{ $bcp->get_bugs_by_ids($bugs_string) } ) {
         foreach my $bug (@bugs) {
             # Save the bug if it doesn't exist
-            $self->_save_bug($bug) unless $self->_bug_exists($bug->get_id);
+            if ( ! $self->_bug_exists($bug->get_id) ) {
+                $self->_save_bug($bug);
 
-            Lucia::Debugger::success(
-                sprintf 'The bug %s has been saved in the box with status %s',
-                $bug->get_id, $bug->get_status
-            ) if $self->{_debug};
+                Lucia::Debugger::success(
+                    sprintf('The bug %s has been saved in the box with status %s',
+                    $bug->get_id, $bug->get_status)
+                ) if $self->{_debug};
+
+                next;
+            }
 
             # Skip processing if bug status and tester platform remain the same
-            next if $self->_bug_has_same_status($bug->get_id, $bug->get_status) &&
-                $self->_tester_is_the_same($bug->get_id, $bug->get_rep_platform);
+            if ( $self->_bug_has_same_status($bug->get_id, $bug->get_status) &&
+                 $self->_tester_is_the_same($bug->get_id, $bug->get_rep_platform) ) {
 
-            # Skip processing if bug status is CLOSED
-            return if $bug->get_status eq 'CLOSED';
+                Lucia::Debugger::info(
+                    sprintf(
+                        'Skipping iteration because bug %s or tester status has not changed',
+                        $bug->get_id
+                    )
+                ) if $self->{_debug};
+
+                next;
+             }
 
             # Alert about the bug change and save the bug
             $self->_alert_change($bug);
             $self->_save_bug($bug);
 
             Lucia::Debugger::success(
-                sprintf 'The bug %s has been updated in the box with status %s',
-                $bug->get_id, $bug->get_status
+                sprintf('The bug %s has been updated in the box with status %s',
+                $bug->get_id, $bug->get_status)
             ) if $self->{_debug};
         }
 
@@ -217,7 +228,7 @@ sub notify_for_user {
 
         @bugs = @{ $bcp->get_bugs_by_userid($user->get_id) };
         if ( !@bugs ) {
-            Lucia::Debugger::success(
+            Lucia::Debugger::warning(
                 sprintf('There are no bugs available for %s', $username)
             ) if $self->{_debug};
             next;
@@ -225,24 +236,38 @@ sub notify_for_user {
 
         foreach my $bug ( @bugs ) {
             # Save the bug if it doesn't exist
-            $self->_save_bug($bug) unless $self->_bug_exists($bug->get_id);
+            if ( ! $self->_bug_exists($bug->get_id) ) {
+                $self->_save_bug($bug);
 
-            Lucia::Debugger::success(
-                sprintf 'The bug %s has been saved in the box with status %s',
-                $bug->get_id, $bug->get_status
-            ) if $self->{_debug};
+                Lucia::Debugger::success(
+                    sprintf('The bug %s has been saved in the box with status %s',
+                    $bug->get_id, $bug->get_status)
+                ) if $self->{_debug};
+
+                next;
+            }
 
             # Skip processing if bug status and tester platform remain the same
-            next if $self->_bug_has_same_status($bug->get_id, $bug->get_status) &&
-                    $self->_tester_is_the_same($bug->get_id, $bug->get_rep_platform);
+            if ( $self->_bug_has_same_status($bug->get_id, $bug->get_status) &&
+                 $self->_tester_is_the_same($bug->get_id, $bug->get_rep_platform) ) {
+
+                Lucia::Debugger::warning(
+                    sprintf(
+                        'Skipping iteration because bug %s or tester status has not changed',
+                        $bug->get_id
+                    )
+                ) if $self->{_debug};
+
+                next;
+             }
 
             # Alert about the bug change and update the bug
             $self->_alert_change($bug);
             $self->_save_bug($bug);
 
             Lucia::Debugger::success(
-                sprintf 'The bug %s has been updated in the box with status %s',
-                $bug->get_id, $bug->get_status
+                sprintf('The bug %s has been updated in the box with status %s',
+                $bug->get_id, $bug->get_status)
             ) if $self->{_debug};
         }
 

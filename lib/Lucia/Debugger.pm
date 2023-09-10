@@ -3,56 +3,46 @@ package Lucia::Debugger;
 use strict;
 use warnings;
 
+use Exporter qw(import);
+use Term::ANSIColor qw(colored);
+
+our @EXPORT_OK = qw(success warning failure info);
+
+
 use constant {
-    SUCCESS_SYMBOL => '+',
-    WARNING_SYMBOL => '!!',
-    FAILURE_SYMBOL => 'x',
-    INFO_SYMBOL    => '!',
+    SUCCESS_COLOR => 'green',
+    WARNING_COLOR => 'yellow',
+    FAILURE_COLOR => 'red',
+    INFO_COLOR    => 'blue'
 };
 
 
 sub success {
-
     my $message = shift;
-    _build_message($message, SUCCESS_SYMBOL);
-    return;
-
+    _log_message('SUCCESS', $message, SUCCESS_COLOR);
 }
 
 sub warning {
-
     my $message = shift;
-    _build_message($message, WARNING_SYMBOL);
-    return;
-
+    _log_message('WARNING', $message, WARNING_COLOR);
 }
 
 sub failure {
-
     my $message = shift;
-    _build_message($message, FAILURE_SYMBOL);
-    return;
-
+    _log_message('FAILURE', $message, FAILURE_COLOR);
 }
 
 sub info {
-
     my $message = shift;
-    _build_message($message, INFO_SYMBOL);
-    return;
-
+    _log_message('INFO', $message, INFO_COLOR);
 }
 
-sub _build_message {
+sub _log_message {
+    my ( $level, $message, $color ) = @_;
 
-    my ( $message, $symbol ) = @_;
-    
     my $timestamp = localtime;
-    my $log_message = "[$symbol] [$timestamp] $message\n";
-    print $log_message;
-
-    return;
-
+    my $log_message = "[$level] [$timestamp] $message\n";
+    print colored($log_message, $color);
 }
 
 1;
