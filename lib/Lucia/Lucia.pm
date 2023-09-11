@@ -288,8 +288,8 @@ sub _notify_greeting {
     my $self = shift;
 
     my $username = $ENV{USER};
-    my $header = $self->_create_message('TEXT_GREETING_NOTIFY_HEADER', [$username]);
-    my $body = $self->_create_message('TEXT_GREETING_NOTIFY_BODY');
+    my $header = $self->_create_message_with_dict('TEXT_GREETING_NOTIFY_HEADER', [$username]);
+    my $body = $self->_create_message_with_dict('TEXT_GREETING_NOTIFY_BODY');
 
     $self->_send_notification(
         header => $header,
@@ -297,7 +297,7 @@ sub _notify_greeting {
     );
 
     if ( $self->{_voice_engine} ) {
-        my $message = $self->_create_message('VOICE_GREETING', [$username]);
+        my $message = $self->_create_message_with_dict('VOICE_GREETING', [$username]);
         $self->_play_voice($message);
     }
 
@@ -340,6 +340,25 @@ sub _tester_is_the_same {
 
 }
 
+sub simulate {
+
+    my ( $self, $bugs_string ) = @_;
+
+    die "[x] bugs string is undefined or invalid\n"
+    unless defined $bugs_string && $self->_bugs_string_is_valid($bugs_string);
+
+    my @bug_ids = split /,/, $bugs_string;
+
+    foreach my $bug_id (@bug_ids) {
+        $self->_wait_random_time_for_notification();
+        my $bug = $self->_create_dummy_bug($bug_id);
+        $self->_alert_change($bug);
+    }
+
+    return;
+
+}
+
 sub _alert_change {
 
     my ( $self, $bug ) = @_;
@@ -350,10 +369,10 @@ sub _alert_change {
         status     => $bug->get_status
     );
 
-    my $header = $self->_create_message('TEXT_BUG_NOTIFY_HEADER', [ $bug->get_id, $bug->get_description ]);
-    my $body = $self->_create_message('TEXT_BUG_NOTIFY_BODY_1', [ $bug->get_status, $bug->get_resolution, $bug->get_rep_platform ]);
-    $body .= $bug_alias ? $self->_create_message('TEXT_BUG_NOTIFY_BODY_2', [$bug_alias])
-                        : $self->_create_message('TEXT_BUG_NOTIFY_BODY_3');
+    my $header = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_HEADER', [ $bug->get_id, $bug->get_description ]);
+    my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_1', [ $bug->get_status, $bug->get_resolution, $bug->get_rep_platform ]);
+    $body .= $bug_alias ? $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_2', [$bug_alias])
+                        : $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_3');
     my $icon = 'icons/notified.png';
 
     $self->_send_notification(
@@ -363,7 +382,7 @@ sub _alert_change {
     );
 
     if ( $self->{_voice_engine} ) {
-        my $message = $self->_create_message('VOICE_BUG_NOTIFY', [ $bug->get_id, $bug_alias ]);
+        my $message = $self->_create_message_with_dict('VOICE_BUG_NOTIFY', [ $bug->get_id, $bug_alias ]);
         $self->_play_voice($message);
     }
 
@@ -380,19 +399,19 @@ sub _create_alias_for_bug_status {
     my $status     = $args{status};
 
     my %status_aliases = (
-        'NEW'      => $self->_create_message('TEXT_NEW_ALIAS'),
-        'REOPENED' => $self->_create_message('TEXT_REOPENED_ALIAS'),
-        'ASSIGNED' => $self->_create_message('TEXT_ASSIGNED_ALIAS'),
+        'NEW'      => $self->_create_message_with_dict('TEXT_NEW_ALIAS'),
+        'REOPENED' => $self->_create_message_with_dict('TEXT_REOPENED_ALIAS'),
+        'ASSIGNED' => $self->_create_message_with_dict('TEXT_ASSIGNED_ALIAS'),
         'RESOLVED' => {
             'FIXED' => {
-                'Sin Asignar' => $self->_create_message('TEXT_RESOLVED_FIXED_ALIAS_1'),
-                'Asignado' => $self->_create_message('TEXT_RESOLVED_FIXED_ALIAS_2'),
+                'Sin Asignar' => $self->_create_message_with_dict('TEXT_RESOLVED_FIXED_ALIAS_1'),
+                'Asignado' => $self->_create_message_with_dict('TEXT_RESOLVED_FIXED_ALIAS_2'),
             },
         },
         'VERIFIED' => {
-            'FIXED' => $self->_create_message('TEXT_VERIFIED_FIXED_ALIAS'),
+            'FIXED' => $self->_create_message_with_dict('TEXT_VERIFIED_FIXED_ALIAS'),
         },
-        'REOPENED-MERGE' => $self->_create_message('TEXT_REOPENED_MERGE_ALIAS'),
+        'REOPENED-MERGE' => $self->_create_message_with_dict('TEXT_REOPENED_MERGE_ALIAS'),
     );
 
     my $alias = $status_aliases{$status};
@@ -408,40 +427,6 @@ sub _create_alias_for_bug_status {
 
 }
 
-sub simulate {
-
-    my ( $self, $bugs_string ) = @_;
-
-    die "[x] bugs string is undefined or invalid\n"
-      unless defined $bugs_string && $self->_bugs_string_is_valid($bugs_string);
-
-    my @bug_ids = split /,/, $bugs_string;
-
-    foreach my $bug_id (@bug_ids) {
-
-        $self->_wait_random_time_for_notification();
-
-        my $bug = $self->_create_dummy_bug($bug_id);
-
-        my $header = $self->_create_message('TEXT_BUG_NOTIFY_HEADER', [ $bug->{id}, $bug->{desc} ]);
-        my $body = $self->_create_message('TEXT_BUG_NOTIFY_BODY_1', [ $bug->{status}, $bug->{resolution}, $bug->{tester} ]);
-        $body .= $self->_create_message('TEXT_BUG_NOTIFY_BODY_2', [ $bug->{status_alias} ]);
-
-        $self->_send_notification(
-            header => $header,
-            body   => $body,
-        );
-
-        if ( $self->{_voice_engine} ) {
-            my $message = $self->_create_message('VOICE_BUG_NOTIFY', [ $bug->{id}, $bug->{status_alias} ]);
-            $self->_play_voice($message);
-        }
-
-    }
-
-    return;
-
-}
 
 sub _bugs_string_is_valid {
 
@@ -470,24 +455,22 @@ sub _wait_time_for_notification {
 sub _create_dummy_bug {
 
     my ( $self, $bug_id ) = @_;
+    my $description  = $self->_create_message_with_dict('TEXT_SIMULATE_DESCRIPTION');
 
-    my $description  = $self->_create_message('TEXT_SIMULATE_DESCRIPTION');
-    my $status_alias = $self->_create_message('TEXT_REOPENED_ALIAS');
+    require Lucia::BugChurch::Entities::Bug;
 
-    my $bug = {
-        id           => $bug_id,
-        desc         => $description,
-        status       => 'REOPENED',
-        resolution   => '',
-        tester       => 'Emily',
-        status_alias => $status_alias
-    };
+    my $bug = Lucia::BugChurch::Entities::Bug->new;
+    $bug->set_id($bug_id);
+    $bug->set_status('RESOLVED');
+    $bug->set_description($description);
+    $bug->set_rep_platform('Emily');
+    $bug->set_resolution('FIXED');
 
     return $bug;
 
 }
 
-sub _create_message {
+sub _create_message_with_dict {
 
     my ( $self, $term, $items ) = @_;
 
