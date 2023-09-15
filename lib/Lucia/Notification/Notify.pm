@@ -22,7 +22,7 @@ sub new {
 }
 
 
-sub active_sound {
+sub enable_sound {
 
     my ( $self, $is_active ) = @_;
     die "[x] Please provide 1 or 0\n" unless $is_active =~ /^[01]$/;

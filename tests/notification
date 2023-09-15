@@ -12,6 +12,6 @@ $notification->set_app_name( 'notification' );
 $notification->set_header( 'Notification' );
 $notification->set_body( 'This is a test with Notification' );
 $notification->set_expire_timeout( 30 );
-$notification->active_sound(1);
+$notification->enable_sound(1);
 
 $notification->notify;

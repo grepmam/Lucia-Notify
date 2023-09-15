@@ -34,7 +34,6 @@ sub new {
         _bcp          => Lucia::BugChurch::Proxy->new,
         _notify       => Lucia::Notification::Notify->new,
         _dict         => Lucia::Dictionary->new,
-        _debug        => DEFAULT_DEBUG
 
     };
 
@@ -50,10 +49,7 @@ sub _create_bug_book {
 
     my $self = shift;
     
-    if ( ! -e BUG_BOOK_NAME ) {
-        store {}, BUG_BOOK_NAME;
-    }
-
+    store {}, BUG_BOOK_NAME unless -e BUG_BOOK_NAME;
     $self->{_bug_book} = retrieve(BUG_BOOK_NAME);
 
     return;
@@ -80,7 +76,7 @@ sub set_lang {
 
 }
 
-sub active_sound {
+sub enable_sound {
 
     my ( $self, $is_active ) = @_;
 
@@ -91,7 +87,7 @@ sub active_sound {
 
 }
 
-sub active_voice {
+sub enable_voice {
 
     my ( $self, $is_active ) = @_;
 
@@ -114,7 +110,7 @@ sub set_language {
 
 }
 
-sub active_debug {
+sub enable_debug {
 
     my ( $self, $is_active ) = @_;
 
@@ -125,7 +121,7 @@ sub active_debug {
 
 }
 
-sub active_no_greeting {
+sub enable_no_greeting {
 
     my ( $self, $is_active ) = @_;
 
@@ -437,7 +433,7 @@ sub _bugs_string_is_valid {
 
 sub _wait_random_time_for_notification {
 
-    my $self        = shift;
+    my $self = shift;
     my $random_time = int rand 10;
     $self->_wait_time_for_notification($random_time);
     return;
@@ -497,7 +493,7 @@ sub _send_notification {
     $notification->set_app_name('Lucia');
     $notification->set_header($args{header});
     $notification->set_body($args{body});
-    $notification->active_sound($self->{_sound});
+    $notification->enable_sound($self->{_sound});
 
     $notification->notify;
 

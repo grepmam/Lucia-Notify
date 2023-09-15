@@ -9,10 +9,10 @@ use Lucia::Lucia;
 my $lucia = Lucia::Lucia->new;
 $lucia->set_lang('en');
 $lucia->set_time(10);
-$lucia->active_sound(0);
-$lucia->active_voice(1);
-$lucia->active_no_greeting(1);
-$lucia->active_debug(1);
+$lucia->enable_sound(0);
+$lucia->enable_voice(1);
+$lucia->enable_no_greeting(1);
+$lucia->enable_debug(1);
 
 $lucia->simulate( '1732853244' );
 #$lucia->notify_for_bugs( '17413' );
