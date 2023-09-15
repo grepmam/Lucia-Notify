@@ -15,7 +15,7 @@ our @EXPORT = qw(
     DEFAULT_DEBUG
     DEFAULT_NO_GREETING
     MIN_TIME_PER_QUERY
-    BUG_BOX_NAME
+    BUG_BOOK_NAME
 
 );
 
@@ -31,6 +31,6 @@ use constant {
 
     MIN_TIME_PER_QUERY     => 10,
 
-    BUG_BOX_NAME           => 'box.dat'
+    BUG_BOOK_NAME          => 'book.dat'
 
 };

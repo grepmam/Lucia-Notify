@@ -40,21 +40,21 @@ sub new {
 
     bless $self, $class;
 
-    $self->_create_bug_box();
+    $self->_create_bug_book();
 
     return $self;
 
 }
 
-sub _create_bug_box {
+sub _create_bug_book {
 
     my $self = shift;
     
-    if ( ! -e BUG_BOX_NAME ) {
-        store {}, BUG_BOX_NAME; 
+    if ( ! -e BUG_BOOK_NAME ) {
+        store {}, BUG_BOOK_NAME;
     }
 
-    $self->{_bug_box} = retrieve(BUG_BOX_NAME);
+    $self->{_bug_book} = retrieve(BUG_BOOK_NAME);
 
     return;
 
@@ -306,16 +306,16 @@ sub _notify_greeting {
 sub _bug_exists {
 
     my ( $self, $bug_id ) = @_;
-    return exists $self->{_bug_box}->{$bug_id};
+    return exists $self->{_bug_book}->{$bug_id};
 
 }
 
 sub _save_bug {
 
     my ( $self, $bug ) = @_;
-    $self->{_bug_box}->{ $bug->get_id } = $bug;
-    store $self->{_bug_box}, BUG_BOX_NAME;
-    $self->{_bug_box} = retrieve(BUG_BOX_NAME);
+    $self->{_bug_book}->{ $bug->get_id } = $bug;
+    store $self->{_bug_book}, BUG_BOOK_NAME;
+    $self->{_bug_book} = retrieve(BUG_BOOK_NAME);
 
     return;
 
@@ -325,7 +325,7 @@ sub _bug_has_same_status {
 
     my ( $self, $bug_id, $current_bug_status ) = @_;
 
-    my $old_bug = $self->{_bug_box}->{$bug_id};
+    my $old_bug = $self->{_bug_book}->{$bug_id};
     return $old_bug->get_status eq $current_bug_status;
 
 }
@@ -334,7 +334,7 @@ sub _tester_is_the_same {
 
     my ( $self, $bug_id, $current_tester ) = @_;
 
-    my $old_bug = $self->{_bug_box}->{$bug_id};
+    my $old_bug = $self->{_bug_book}->{$bug_id};
     my $old_tester = $old_bug->get_rep_platform;
     return $old_tester eq $current_tester;
 
