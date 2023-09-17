@@ -12,7 +12,6 @@ use Lucia::Debugger;
 use Lucia::Notification::Notify;
 use Lucia::BugChurch::Proxy;
 
-
 our %LUCIA_VOICES = (
     es => 'Lucia',
     en => 'Kimberly'
@@ -147,7 +146,7 @@ sub notify_for_bugs {
     my @bugs;
     my $bcp = $self->{_bcp};
     $bcp->use_model('bug');
-    
+
     while ( @bugs = @{ $bcp->get_bugs_by_ids($bugs_string) } ) {
         foreach my $bug (@bugs) {
             # Save the bug if it doesn't exist
@@ -220,9 +219,12 @@ sub notify_for_user {
     $bcp->use_model('bug');
 
     while ( 1 ) {
-        $self->_wait_time_for_notification();
 
-        @bugs = @{ $bcp->get_bugs_by_userid($user->get_id) };
+        $self->_wait_time_for_notification();
+        @bugs = @{$bcp->get_bugs_by_userid($user->get_id)};
+    
+        $self->_delete_unassigned_bugs(\@bugs);
+
         if ( !@bugs ) {
             Lucia::Debugger::warning(
                 sprintf('There are no bugs available for %s', $username)
@@ -233,7 +235,9 @@ sub notify_for_user {
         foreach my $bug ( @bugs ) {
             # Save the bug if it doesn't exist
             if ( ! $self->_bug_exists($bug->get_id) ) {
+
                 $self->_save_bug($bug);
+                $self->_alert_new_assign($bug);
 
                 Lucia::Debugger::success(
                     sprintf('The bug %s has been saved in the box with status %s',
@@ -255,6 +259,7 @@ sub notify_for_user {
                 ) if $self->{_debug};
 
                 next;
+
              }
 
             # Alert about the bug change and update the bug
@@ -306,12 +311,23 @@ sub _bug_exists {
 
 }
 
+sub _update_bug_book {
+
+    my $self = shift;
+
+    store $self->{_bug_book}, BUG_BOOK_NAME;
+    $self->{_bug_book} = retrieve(BUG_BOOK_NAME);
+
+    return;
+
+}
+
 sub _save_bug {
 
     my ( $self, $bug ) = @_;
+
     $self->{_bug_book}->{ $bug->get_id } = $bug;
-    store $self->{_bug_book}, BUG_BOOK_NAME;
-    $self->{_bug_book} = retrieve(BUG_BOOK_NAME);
+    $self->_update_bug_book();
 
     return;
 
@@ -349,6 +365,49 @@ sub simulate {
         $self->_wait_random_time_for_notification();
         my $bug = $self->_create_dummy_bug($bug_id);
         $self->_alert_change($bug);
+    }
+
+    return;
+
+}
+
+sub _delete_unassigned_bugs {
+
+    my ($self, $bugs) = @_;
+    my @bugs_store_ids = keys %{$self->{_bug_book}};
+    my @bugs_db_ids = map { $_->{_id} } @$bugs;
+
+    my @bugs_to_delete = grep {
+        my $bug_id = $_;
+        !grep { $bug_id == $_ }
+        @bugs_db_ids 
+    } @bugs_store_ids;
+
+    delete $self->{_bug_book}{$_} foreach @bugs_to_delete;
+
+    $self->_update_bug_book();
+
+    return;
+
+}
+
+sub _alert_new_assign {
+
+    my ( $self, $bug ) = @_;
+
+    my $header = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_HEADER', [ $bug->get_id, $bug->get_description ]);
+    my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN', [ $bug->get_id ]);
+    my $icon = 'icons/notified.png';
+
+    $self->_send_notification(
+        header => $header,
+        body   => $body,
+        icon   => $icon,
+    );
+
+    if ( $self->{_voice_engine} ) {
+        my $message = $self->_create_message_with_dict('VOICE_BUG_NEW_ASSIGN_NOTIFY', [ $bug->get_id ]);
+        $self->_play_voice($message);
     }
 
     return;
