@@ -39,6 +39,9 @@ sub get_user_by_username {
     $user->set_email($row->{login_name});
     $user->set_realname($row->{realname});
 
+    $sth->finish();
+    $conn->disconnect();
+
     return $user;
 
 }

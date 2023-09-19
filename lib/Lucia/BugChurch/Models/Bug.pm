@@ -48,7 +48,10 @@ sub get_bugs_by_ids {
 
         push @bugs, $bug;
 
-    }
+    };
+
+    $sth->finish();
+    $conn->disconnect();
 
     return \@bugs;
 
@@ -91,7 +94,10 @@ sub get_bugs_by_userid {
 
         push @bugs, $bug;
 
-    }
+    };
+
+    $sth->finish();
+    $conn->disconnect();
 
     return \@bugs;
 
