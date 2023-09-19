@@ -38,18 +38,18 @@ sub new {
 
     bless $self, $class;
 
-    $self->_create_bug_book();
+    $self->_create_book();
 
     return $self;
 
 }
 
-sub _create_bug_book {
+sub _create_book {
 
     my $self = shift;
     
-    store {}, BUG_BOOK_NAME unless -e BUG_BOOK_NAME;
-    $self->{_bug_book} = retrieve(BUG_BOOK_NAME);
+    store {}, BOOK_FILENAME unless -e BOOK_FILENAME;
+    $self->{_book} = retrieve BOOK_FILENAME;
 
     return;
 
@@ -154,7 +154,7 @@ sub notify_for_bugs {
                 $self->_save_bug($bug);
 
                 Lucia::Debugger::success(
-                    sprintf('The bug %s has been saved in the box with status %s',
+                    sprintf("The bug %s has been saved in the Lucia's Book with status %s",
                     $bug->get_id, $bug->get_status)
                 ) if $self->{_debug};
 
@@ -165,7 +165,7 @@ sub notify_for_bugs {
             if ( $self->_bug_has_same_status($bug->get_id, $bug->get_status) &&
                  $self->_tester_is_the_same($bug->get_id, $bug->get_rep_platform) ) {
 
-                Lucia::Debugger::info(
+                Lucia::Debugger::warning(
                     sprintf(
                         'Skipping iteration because bug %s or tester status has not changed',
                         $bug->get_id
@@ -180,7 +180,7 @@ sub notify_for_bugs {
             $self->_save_bug($bug);
 
             Lucia::Debugger::success(
-                sprintf('The bug %s has been updated in the box with status %s',
+                sprintf("The bug %s has been updated in the Lucia's Book with status %s",
                 $bug->get_id, $bug->get_status)
             ) if $self->{_debug};
         }
@@ -194,6 +194,8 @@ sub notify_for_bugs {
 
         $self->_wait_time_for_notification();
     }
+
+    print "[x] There are no bugs to work on.\n";
 
     return;
 
@@ -221,9 +223,9 @@ sub notify_for_user {
     while ( 1 ) {
 
         $self->_wait_time_for_notification();
+
         @bugs = @{$bcp->get_bugs_by_userid($user->get_id)};
-    
-        $self->_delete_unassigned_bugs(\@bugs);
+        $self->_delete_cached_bugs_from_book(\@bugs);
 
         if ( !@bugs ) {
             Lucia::Debugger::warning(
@@ -235,12 +237,11 @@ sub notify_for_user {
         foreach my $bug ( @bugs ) {
             # Save the bug if it doesn't exist
             if ( ! $self->_bug_exists($bug->get_id) ) {
-
                 $self->_save_bug($bug);
                 $self->_alert_new_assign($bug);
 
                 Lucia::Debugger::success(
-                    sprintf('The bug %s has been saved in the box with status %s',
+                    sprintf("The bug %s has been saved in the Lucia's Book with status %s",
                     $bug->get_id, $bug->get_status)
                 ) if $self->{_debug};
 
@@ -263,11 +264,11 @@ sub notify_for_user {
              }
 
             # Alert about the bug change and update the bug
-            $self->_alert_change($bug);
             $self->_save_bug($bug);
+            $self->_alert_change($bug);
 
             Lucia::Debugger::success(
-                sprintf('The bug %s has been updated in the box with status %s',
+                sprintf("The bug %s has been updated in the Lucia's Book with status %s",
                 $bug->get_id, $bug->get_status)
             ) if $self->{_debug};
         }
@@ -307,16 +308,16 @@ sub _notify_greeting {
 sub _bug_exists {
 
     my ( $self, $bug_id ) = @_;
-    return exists $self->{_bug_book}->{$bug_id};
+    return exists $self->{_book}->{$bug_id};
 
 }
 
-sub _update_bug_book {
+sub _update_book {
 
     my $self = shift;
 
-    store $self->{_bug_book}, BUG_BOOK_NAME;
-    $self->{_bug_book} = retrieve(BUG_BOOK_NAME);
+    store $self->{_book}, BOOK_FILENAME;
+    $self->{_book} = retrieve BOOK_FILENAME;
 
     return;
 
@@ -326,8 +327,8 @@ sub _save_bug {
 
     my ( $self, $bug ) = @_;
 
-    $self->{_bug_book}->{ $bug->get_id } = $bug;
-    $self->_update_bug_book();
+    $self->{_book}->{ $bug->get_id } = $bug;
+    $self->_update_book();
 
     return;
 
@@ -337,7 +338,7 @@ sub _bug_has_same_status {
 
     my ( $self, $bug_id, $current_bug_status ) = @_;
 
-    my $old_bug = $self->{_bug_book}->{$bug_id};
+    my $old_bug = $self->{_book}->{$bug_id};
     return $old_bug->get_status eq $current_bug_status;
 
 }
@@ -346,7 +347,7 @@ sub _tester_is_the_same {
 
     my ( $self, $bug_id, $current_tester ) = @_;
 
-    my $old_bug = $self->{_bug_book}->{$bug_id};
+    my $old_bug = $self->{_book}->{$bug_id};
     my $old_tester = $old_bug->get_rep_platform;
     return $old_tester eq $current_tester;
 
@@ -371,21 +372,23 @@ sub simulate {
 
 }
 
-sub _delete_unassigned_bugs {
+sub _delete_cached_bugs_from_book {
 
-    my ($self, $bugs) = @_;
-    my @bugs_store_ids = keys %{$self->{_bug_book}};
-    my @bugs_db_ids = map { $_->{_id} } @$bugs;
+    my ( $self, $bugs ) = @_;
 
-    my @bugs_to_delete = grep {
-        my $bug_id = $_;
-        !grep { $bug_id == $_ }
-        @bugs_db_ids 
-    } @bugs_store_ids;
+    my @book_bug_ids = keys %{$self->{_book}};
+    my %db_bug_ids = map { $_->get_id => 1 } @$bugs;
 
-    delete $self->{_bug_book}{$_} foreach @bugs_to_delete;
+    # If there is a bug in the local db that is no
+    # longer found in the external db, delete it.
 
-    $self->_update_bug_book();
+    foreach my $bug_id ( @book_bug_ids ) {
+        if (!exists $db_bug_ids{$bug_id}) {
+            delete $self->{_book}{$bug_id};
+        }
+    }
+
+    $self->_update_book();
 
     return;
 

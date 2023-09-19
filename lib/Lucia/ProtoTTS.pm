@@ -86,7 +86,6 @@ sub play {
     die "Could not get the content of the URL\n" unless $audio_content;
 
     my $audio_filename = sprintf '/tmp/%s', $self->_get_audio_name( $audio_url );
-    print $audio_filename;
     $self->_create_tempfile( $audio_filename, $audio_content );
 
     my $status = $self->_speak( $audio_filename );
