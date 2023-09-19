@@ -60,7 +60,7 @@ sub set_time {
     my ( $self, $time ) = @_;
 
     die "[x] That time is nonsense, something coherent please\n"
-      unless $time >= MIN_TIME_PER_QUERY;
+        unless $time >= MIN_TIME_PER_QUERY;
     $self->{_time} = $time;
 
     return;
@@ -102,7 +102,7 @@ sub set_language {
     my ( $self, $lang ) = @_;
 
     die "[x] I don't speak that language\n"
-      unless exists $LUCIA_VOICES{$lang};
+        unless exists $LUCIA_VOICES{$lang};
     $self->{_lang} = $lang;
 
     return;
@@ -136,7 +136,7 @@ sub notify_for_bugs {
     my ( $self, $bugs_string ) = @_;
 
     die "[x] bugs string is undefined or invalid\n"
-      unless defined $bugs_string && $self->_bugs_string_is_valid($bugs_string);
+        unless defined $bugs_string && $self->_bugs_string_is_valid($bugs_string);
 
     $self->_notify_greeting unless $self->{_nogreeting};
 
@@ -358,7 +358,7 @@ sub simulate {
     my ( $self, $bugs_string ) = @_;
 
     die "[x] bugs string is undefined or invalid\n"
-    unless defined $bugs_string && $self->_bugs_string_is_valid($bugs_string);
+        unless defined $bugs_string && $self->_bugs_string_is_valid($bugs_string);
 
     my @bug_ids = split /,/, $bugs_string;
 

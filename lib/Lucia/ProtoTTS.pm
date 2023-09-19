@@ -6,17 +6,9 @@ use warnings;
 use JSON qw(decode_json);
 use Encode qw(encode);
 use File::Which;
-#use File::Temp;
 
 use LWP::UserAgent;
-#use Audio::Play::MPG123;
 
-
-# --------------------------------------------
-#
-#   CONSTANTS
-#
-# --------------------------------------------
 
 use constant {
     
@@ -25,13 +17,6 @@ use constant {
     MAX_CHARACTERS => 3000
 
 };
-
-
-# --------------------------------------------
-#
-#   GLOBALS
-#
-# --------------------------------------------
 
 our $ua = LWP::UserAgent->new;
 our $service_url = sprintf 'https://%s.com', TTS_SERVICE;
@@ -89,12 +74,6 @@ sub play {
     $self->_create_tempfile( $audio_filename, $audio_content );
 
     my $status = $self->_speak( $audio_filename );
-    #unlink $audio_filename;
-
-    # Deprecated due to unknown issues 
-    #my $player = Audio::Play::MPG123->new;
-    #$player->load( $audio_filename );
-    #$player->poll(1) until $player->state == 0;
 
     return;
 
@@ -150,11 +129,6 @@ sub _create_tempfile {
     print $fh $content;
     close $fh;
 
-    # Deprecated due to unknown issues
-    #my $tempfile = File::Temp->new( SUFFIX => '.mp3' );
-    #print $tempfile $content;
-    #close $tempfile;
-
     return;
 
 }
@@ -166,60 +140,6 @@ sub _speak {
 
     my $mpv_path = which 'mpv';
     system "( $mpv_path --no-video $audio_filename && rm $audio_filename ) > /dev/null 2>&1";
-
-    return;
-
-}
-
-
-sub _Get_Speakers {
-
-    my $class = shift;
-
-    my $response = $ua->get( $service_url );
-
-    return {} unless $response->is_success;
-    
-    my $content = $response->decoded_content;
-    my $speakers = {};
-
-    while ( $content =~ /<option[^>]*>(.+?)<\/option>/ig ){
-        my $item = encode 'utf-8', $1;
-        my ( $lang, $voice ) = split /\s\/\s/, $item;
-        $speakers->{$lang} = [] unless exists $speakers->{$lang};
-        push @{$speakers->{$lang}}, $voice;
-    }
-
-    return $speakers;
-
-}
-
-
-sub List_Langs {
-
-    my $class = shift;
-
-    my $speakers = $class->_Get_Speakers;
-    die "There are no speakers\n" unless $speakers;
-
-    my @langs = keys %$speakers;
-    foreach my $lang (@langs){ print "$lang\n"; }
-
-    return;
-
-}
-
-
-sub List_Voices {
-
-    my ( $class, $lang ) = @_;
-
-    my $speakers = $class->_Get_Speakers;
-    die "There are no speakers\n" unless $speakers;
-    die "Language does not exist\n" unless exists $speakers->{$lang};
-
-    my $voices = $speakers->{$lang}; 
-    foreach my $voice (@$voices){ print "$voice\n"; }
 
     return;
 
