@@ -12,10 +12,12 @@ use Lucia::Debugger qw(success warning failure info);
 use Lucia::Notification::Notify;
 use Lucia::BugChurch::Proxy;
 
+
 our %LUCIA_VOICES = (
     es => 'Lucia',
     en => 'Kimberly'
 );
+
 
 sub new {
 
@@ -41,9 +43,9 @@ sub new {
     bless $self, $class;
     
     
-    $self->_validate_directories();
-    $self->_create_book();
-    $self->_load_dictionary();
+    $self->_validate_directories;
+    $self->_create_book;
+    $self->_load_dictionary;
 
     return $self;
 
@@ -68,7 +70,7 @@ sub _create_book {
 
     my $self = shift;
 
-    my $storage = $self->_get_book_path();
+    my $storage = $self->_get_book_path;
     store {}, $storage unless -e $storage;
     $self->{_book} = retrieve $storage;
 
@@ -79,8 +81,11 @@ sub _create_book {
 sub _load_dictionary {
 
     my $self = shift;
+
     my $dict_file = sprintf '%s/translates/lexicon.json', $self->{_resources_dir};
     $self->{_dict} = Lucia::Dictionary->new($dict_file);
+
+    return;
 
 }
 
@@ -251,7 +256,7 @@ sub notify_for_user {
 
     while ( 1 ) {
 
-        $self->_wait_time_for_notification();
+        $self->_wait_time_for_notification;
 
         @bugs = @{$bcp->get_bugs_by_userid($user->get_id)};
         $self->_delete_cached_bugs_from_book(\@bugs);
@@ -345,7 +350,7 @@ sub _update_book {
 
     my $self = shift;
 
-    my $storage = $self->_get_book_path();
+    my $storage = $self->_get_book_path;
     store $self->{_book}, $storage;
     $self->{_book} = retrieve $storage;
 
@@ -365,7 +370,7 @@ sub _save_bug {
     my ( $self, $bug ) = @_;
 
     $self->{_book}->{ $bug->get_id } = $bug;
-    $self->_update_book();
+    $self->_update_book;
 
     return;
 
@@ -400,7 +405,7 @@ sub simulate {
     my @bug_ids = split /,/, $bugs_string;
 
     foreach my $bug_id (@bug_ids) {
-        $self->_wait_random_time_for_notification();
+        $self->_wait_random_time_for_notification;
         my $bug = $self->_create_dummy_bug($bug_id);
         $self->_alert_change($bug);
     }
@@ -421,11 +426,11 @@ sub _delete_cached_bugs_from_book {
 
     foreach my $bug_id ( @book_bug_ids ) {
         if (!exists $db_bug_ids{$bug_id}) {
-            delete $self->{_book}{$bug_id};
+            delete $self->{_book}->{$bug_id};
         }
     }
 
-    $self->_update_book();
+    $self->_update_book;
 
     return;
 
@@ -435,8 +440,8 @@ sub _alert_new_assign {
 
     my ( $self, $bug ) = @_;
 
-    my $header = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_HEADER', [ $bug->get_id, $bug->get_description ]);
-    my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN', [ $bug->get_id ]);
+    my $header = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN_HEADER', [ $bug->get_id ]);
+    my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN_BODY');
     my $icon = sprintf '%s/icons/notified.png', $self->{_resources_dir};
 
     $self->_send_notification(
@@ -446,7 +451,7 @@ sub _alert_new_assign {
     );
 
     if ( $self->{_voice_engine} ) {
-        my $message = $self->_create_message_with_dict('VOICE_BUG_NEW_ASSIGN_NOTIFY', [ $bug->get_id ]);
+        my $message = $self->_create_message_with_dict('VOICE_BUG_NOTIFY_NEW_ASSIGN');
         $self->_play_voice($message);
     }
 
