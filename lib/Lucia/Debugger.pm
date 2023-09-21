@@ -6,6 +6,13 @@ use warnings;
 use Exporter qw(import);
 use Term::ANSIColor qw(colored);
 
+our @EXPORT = qw(
+    success
+    warning
+    failure
+    info
+);
+
 use constant {
     SUCCESS_COLOR => 'green',
     WARNING_COLOR => 'yellow',

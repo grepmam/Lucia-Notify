@@ -3,14 +3,15 @@ package Lucia::Dictionary;
 use strict;
 use warnings;
 
+use Lucia::Utils::File;
+
 
 sub new {
 
-    my $class = shift;
+    my ( $class, $dict_file ) = @_;
+
     my $self = {
-        _lexicon => Lucia::Utils::File::load_json(
-            'resources/translates/lexicon.json'
-        )
+        _lexicon => Lucia::Utils::File::load_json($dict_file)
     };
 
     return bless $self, $class;

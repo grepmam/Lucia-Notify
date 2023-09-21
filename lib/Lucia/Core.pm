@@ -1,4 +1,4 @@
-package Lucia::Lucia;
+package Lucia::Core;
 
 use strict;
 use warnings;
@@ -8,7 +8,7 @@ use Storable qw(store retrieve);
 use Lucia::Defaults;
 use Lucia::ProtoTTS;
 use Lucia::Dictionary;
-use Lucia::Debugger;
+use Lucia::Debugger qw(success warning failure info);
 use Lucia::Notification::Notify;
 use Lucia::BugChurch::Proxy;
 
@@ -19,39 +19,68 @@ our %LUCIA_VOICES = (
 
 sub new {
 
-    my $class = shift;
+    my ( $class, %args ) = @_;
 
     my $self = {
 
-        _time         => DEFAULT_TIME_PER_QUERY,
-        _voice_engine => undef,
-        _sound        => DEFAULT_SOUND,
-        _lang         => DEFAULT_LANGUAGE,
-        _debug        => DEFAULT_DEBUG,
-        _nogreeting   => DEFAULT_NO_GREETING, 
+        _time          => DEFAULT_TIME_PER_QUERY,
+        _voice_engine  => undef,
+        _sound         => DEFAULT_SOUND,
+        _lang          => DEFAULT_LANGUAGE,
+        _debug         => DEFAULT_DEBUG,
+        _nogreeting    => DEFAULT_NO_GREETING,
 
-        _bcp          => Lucia::BugChurch::Proxy->new,
-        _notify       => Lucia::Notification::Notify->new,
-        _dict         => Lucia::Dictionary->new,
+        _bcp           => Lucia::BugChurch::Proxy->new,
+        _notify        => Lucia::Notification::Notify->new,
+
+        _resources_dir => $args{resources_dir},
+        _storage_dir   => $args{storage_dir},
 
     };
 
     bless $self, $class;
-
+    
+    
+    $self->_validate_directories();
     $self->_create_book();
+    $self->_load_dictionary();
 
     return $self;
+
+}
+
+sub _validate_directories {
+
+    my $self = shift;
+
+    my $resources_dir = $self->{_resources_dir};
+    my $storage_dir = $self->{_storage_dir};
+
+    my $defined_dirs = $resources_dir && $storage_dir;
+    die "[x] It is necessary to define the main routes.\n" unless $defined_dirs;
+
+    my $dirs_exists = -d $resources_dir && -d $storage_dir;
+    die "[x] Some directories do not exist.\n" unless $dirs_exists;
 
 }
 
 sub _create_book {
 
     my $self = shift;
-    
-    store {}, BOOK_FILENAME unless -e BOOK_FILENAME;
-    $self->{_book} = retrieve BOOK_FILENAME;
+
+    my $storage = $self->_get_book_path();
+    store {}, $storage unless -e $storage;
+    $self->{_book} = retrieve $storage;
 
     return;
+
+}
+
+sub _load_dictionary {
+
+    my $self = shift;
+    my $dict_file = sprintf '%s/translates/lexicon.json', $self->{_resources_dir};
+    $self->{_dict} = Lucia::Dictionary->new($dict_file);
 
 }
 
@@ -316,10 +345,18 @@ sub _update_book {
 
     my $self = shift;
 
-    store $self->{_book}, BOOK_FILENAME;
-    $self->{_book} = retrieve BOOK_FILENAME;
+    my $storage = $self->_get_book_path();
+    store $self->{_book}, $storage;
+    $self->{_book} = retrieve $storage;
 
     return;
+
+}
+
+sub _get_book_path {
+
+    my $self = shift;
+    return sprintf '%s/%s', $self->{_storage_dir}, BOOK_FILENAME;
 
 }
 
@@ -400,7 +437,7 @@ sub _alert_new_assign {
 
     my $header = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_HEADER', [ $bug->get_id, $bug->get_description ]);
     my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN', [ $bug->get_id ]);
-    my $icon = 'icons/notified.png';
+    my $icon = sprintf '%s/icons/notified.png', $self->{_resources_dir};
 
     $self->_send_notification(
         header => $header,
@@ -431,7 +468,7 @@ sub _alert_change {
     my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_1', [ $bug->get_status, $bug->get_resolution, $bug->get_rep_platform ]);
     $body .= $bug_alias ? $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_2', [$bug_alias])
                         : $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_3');
-    my $icon = 'icons/notified.png';
+    my $icon = sprintf '%s/icons/notified.png', $self->{_resources_dir};
 
     $self->_send_notification(
         header => $header,
@@ -484,7 +521,6 @@ sub _create_alias_for_bug_status {
     return $alias;
 
 }
-
 
 sub _bugs_string_is_valid {
 
@@ -553,9 +589,17 @@ sub _send_notification {
     my $notification = $self->{_notify};
 
     $notification->set_app_name('Lucia');
+
+    my $icon = sprintf '%s/icons/icon.png', $self->{_resources_dir};
+    $notification->set_app_icon($icon);
+
     $notification->set_header($args{header});
     $notification->set_body($args{body});
-    $notification->enable_sound($self->{_sound});
+
+    if ($self->{_sound}) {
+        my $sound_filename = sprintf '%s/sounds/church_notification.ogg', $self->{_resources_dir};
+        $notification->set_sound($sound_filename);
+    }
 
     $notification->notify;
 

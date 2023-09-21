@@ -5,9 +5,6 @@ use warnings;
 
 use Net::DBus;
 use Encode qw(decode);
-use Exporter qw(import);
-
-use Lucia::Utils::File;
 
 
 use constant {
@@ -50,7 +47,6 @@ sub new {
 
 }
 
-
 sub set_app_name {
 
     my ( $self, $app_name ) = @_;
@@ -58,7 +54,6 @@ sub set_app_name {
     return;
 
 }
-
 
 sub set_replace_id {
 
@@ -68,15 +63,13 @@ sub set_replace_id {
 
 }
 
-
 sub set_app_icon {
 
     my ( $self, $app_icon ) = @_;
-    $self->{_app_icon} = Lucia::Utils::File::absolute_path( $app_icon );
+    $self->{_app_icon} = $app_icon;
     return;
 
 }
-
 
 sub set_header {
 
@@ -86,7 +79,6 @@ sub set_header {
 
 }
 
-
 sub set_body {
 
     my ( $self, $body ) = @_;
@@ -95,7 +87,6 @@ sub set_body {
 
 }
 
-
 #sub set_urgency_level {
 #
 #    my ( $self, $level ) = @_;
@@ -103,7 +94,6 @@ sub set_body {
 #    return;
 #
 #}
-
 
 sub set_expire_timeout {
 
@@ -115,7 +105,6 @@ sub set_expire_timeout {
     return;
 
 }
-
 
 sub launch_notification {
 
@@ -136,6 +125,5 @@ sub launch_notification {
     return;
 
 }
-
 
 1;

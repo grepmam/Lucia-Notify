@@ -5,8 +5,7 @@ use warnings;
 
 use JSON qw(decode_json);
 use Encode qw(encode);
-use File::Which;
-
+use File::Which qw(which);
 use LWP::UserAgent;
 
 
@@ -36,7 +35,6 @@ sub new {
 
 }
 
-
 sub set_message {
 
     my ( $self, $message ) = @_;
@@ -50,7 +48,6 @@ sub set_message {
 
 }
 
-
 sub set_voice {
 
     my ( $self, $voice ) = @_;
@@ -58,7 +55,6 @@ sub set_voice {
     return;
 
 }
-
 
 sub play {
 
@@ -78,7 +74,6 @@ sub play {
     return;
 
 }
-
 
 sub _get_audio_url {
 
@@ -100,7 +95,6 @@ sub _get_audio_url {
 
 }
 
-
 sub _get_page_content {
 
     my ( $self, $url ) = @_;
@@ -111,7 +105,6 @@ sub _get_page_content {
 
 }
 
-
 sub _get_audio_name {
 
     my ( $self, $url ) = @_;
@@ -119,7 +112,6 @@ sub _get_audio_name {
     return $url_parts[-1];
 
 }
-
 
 sub _create_tempfile {
 
@@ -133,7 +125,6 @@ sub _create_tempfile {
 
 }
 
-
 sub _speak {
 
     my ( $self, $audio_filename ) = @_;
@@ -144,6 +135,5 @@ sub _speak {
     return;
 
 }
-
 
 1;

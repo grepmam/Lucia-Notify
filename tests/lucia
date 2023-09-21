@@ -3,15 +3,21 @@
 use strict;
 use warnings;
 
-use lib '../lib';
-use Lucia::Lucia;
+use FindBin qw($RealBin);
 
-my $lucia = Lucia::Lucia->new;
+use lib "$RealBin/../lib";
+use Lucia::Core;
+
+my $lucia = Lucia::Core->new(
+    resources_dir => "$RealBin/../resources",
+    storage_dir   => "$RealBin/../storage",
+);
+
 $lucia->set_lang('en');
 $lucia->set_time(10);
 $lucia->enable_sound(0);
 $lucia->enable_voice(1);
-$lucia->enable_no_greeting(1);
+$lucia->enable_no_greeting(0);
 $lucia->enable_debug(1);
 
 #$lucia->simulate( '1732853244' );
