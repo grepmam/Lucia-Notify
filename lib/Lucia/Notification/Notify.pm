@@ -45,7 +45,7 @@ sub _play_sound {
     my $self = shift;
 
     my $mpv_path = which 'mpv';
-    my $sound_filename = $self->{_sound_filename};
+    my $sound_filename = $self->{_sound};
     system "$mpv_path --no-video $sound_filename > /dev/null 2>&1";
 
     return; 
