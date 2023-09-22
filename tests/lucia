@@ -8,11 +8,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin/../lib";
 use Lucia::Core;
 
-my $lucia = Lucia::Core->new(
-    resources_dir => "$RealBin/../resources",
-    storage_dir   => "$RealBin/../storage",
-);
-
+my $lucia = Lucia::Core->new;
 $lucia->set_lang('en');
 $lucia->set_time(10);
 $lucia->enable_sound(0);

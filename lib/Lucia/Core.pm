@@ -3,6 +3,7 @@ package Lucia::Core;
 use strict;
 use warnings;
 
+use FindBin qw($RealBin);
 use Storable qw(store retrieve);
 
 use Lucia::Defaults;
@@ -35,15 +36,15 @@ sub new {
         _bcp           => Lucia::BugChurch::Proxy->new,
         _notify        => Lucia::Notification::Notify->new,
 
-        _resources_dir => $args{resources_dir},
-        _storage_dir   => $args{storage_dir},
+        _resources_dir => "$RealBin/../resources",
+        _storage_dir   => "$RealBin/../storage",
 
     };
 
     bless $self, $class;
     
     
-    $self->_validate_directories;
+    $self->_create_storage_directory;
     $self->_create_book;
     $self->_load_dictionary;
 
@@ -51,18 +52,14 @@ sub new {
 
 }
 
-sub _validate_directories {
+sub _create_storage_directory {
 
     my $self = shift;
 
-    my $resources_dir = $self->{_resources_dir};
     my $storage_dir = $self->{_storage_dir};
+    mkdir($storage_dir, 0700) unless -d $storage_dir;
 
-    my $defined_dirs = $resources_dir && $storage_dir;
-    die "[x] It is necessary to define the main routes.\n" unless $defined_dirs;
-
-    my $dirs_exists = -d $resources_dir && -d $storage_dir;
-    die "[x] Some directories do not exist.\n" unless $dirs_exists;
+    return;
 
 }
 
@@ -285,7 +282,6 @@ sub notify_for_user {
             # Skip processing if bug status and tester platform remain the same
             if ( $self->_bug_has_same_status($bug->get_id, $bug->get_status) &&
                  $self->_tester_is_the_same($bug->get_id, $bug->get_rep_platform) ) {
-
                 Lucia::Debugger::warning(
                     sprintf(
                         'Skipping iteration because bug %s or tester status has not changed',
@@ -294,7 +290,6 @@ sub notify_for_user {
                 ) if $self->{_debug};
 
                 next;
-
              }
 
             # Alert about the bug change and update the bug
@@ -369,7 +364,7 @@ sub _save_bug {
 
     my ( $self, $bug ) = @_;
 
-    $self->{_book}->{ $bug->get_id } = $bug;
+    $self->{_book}->{$bug->get_id} = $bug;
     $self->_update_book;
 
     return;
