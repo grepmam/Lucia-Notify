@@ -13,6 +13,7 @@ use Lucia::Debugger qw(success warning failure info);
 use Lucia::Notification::Notify;
 use Lucia::BugChurch::Proxy;
 use Lucia::Events;
+use Lucia::BookStorage;
 
 
 our %LUCIA_VOICES = (
@@ -41,7 +42,6 @@ sub new {
         _current_evt   => undef,
 
         _resources_dir => "$RealBin/../resources",
-        _storage_dir   => "$RealBin/../storage",
 
     };
 
@@ -161,8 +161,8 @@ sub notify_for_bugs {
     while ( @bugs = @{ $bcp->get_bugs_by_ids($bugs_string) } ) {
         foreach my $bug (@bugs) {
             # Save the bug if it doesn't exist
-            if ( ! $self->_bug_exists($bug->get_id) ) {
-                $self->_save_bug($bug);
+            if ( ! $self->{_book_storage}->bug_exists($bug->get_id) ) {
+                $self->{_book_storage}->save_bug($bug);
 
                 Lucia::Debugger::success(
                     sprintf("The bug %s has been saved in the Lucia's Book with status %s",
@@ -188,7 +188,7 @@ sub notify_for_bugs {
 
             # Alert about the bug change and save the bug
             $self->_alert_change($bug);
-            $self->_save_bug($bug);
+            $self->{_book_storage}->save_bug($bug);
 
             Lucia::Debugger::success(
                 sprintf("The bug %s has been updated in the Lucia's Book with status %s",
@@ -235,7 +235,7 @@ sub notify_for_user {
 
     while ( 1 ) {
 
-        my $skip_assign_notification = $self->{_book}->{recently_created};
+        my $skip_assign_notification = $self->{_book_storage}->is_new;
 
         $self->_wait_time_for_notification;
 
@@ -251,8 +251,8 @@ sub notify_for_user {
 
         foreach my $bug ( @bugs ) {
             # Save the bug if it doesn't exist
-            if ( ! $self->_bug_exists($bug->get_id) ) {
-                $self->_save_bug($bug);
+            if ( ! $self->{_book_storage}->bug_exists($bug->get_id) ) {
+                $self->{_book_storage}->save_bug($bug);
                 $self->_alert_new_assign($bug) unless $skip_assign_notification;
 
                 Lucia::Debugger::success(
@@ -277,7 +277,7 @@ sub notify_for_user {
              }
 
             # Alert about the bug change and update the bug
-            $self->_save_bug($bug);
+            $self->{_book_storage}->save_bug($bug);
             $self->_alert_change($bug);
 
             Lucia::Debugger::success(
@@ -287,8 +287,8 @@ sub notify_for_user {
         };
 
         if($skip_assign_notification){
-            $self->{_book}->{recently_created} = 0;
-            $self->_update_book();
+            $self->{_book_storage}->enable_used_book;
+            $self->{_book_storage}->update_book;
         };
 
         Lucia::Debugger::info(
@@ -306,24 +306,7 @@ sub notify_for_user {
 sub _create_book {
 
     my $self = shift;
-
-    $self->_create_storage_directory;
-
-    my $storage = $self->_get_book_path;
-    store {recently_created => 1}, $storage unless -e $storage;
-    $self->{_book} = retrieve $storage;
-
-    return;
-
-}
-
-sub _create_storage_directory {
-
-    my $self = shift;
-
-    my $storage_dir = $self->{_storage_dir};
-    mkdir($storage_dir, 0700) unless -d $storage_dir;
-
+    $self->{_book_storage} = Lucia::BookStorage->new;
     return;
 
 }
@@ -348,48 +331,10 @@ sub _notify_greeting {
 
 }
 
-sub _bug_exists {
-
-    my ( $self, $bug_id ) = @_;
-    return exists $self->{_book}->{$bug_id};
-
-}
-
-sub _update_book {
-
-    my $self = shift;
-
-    my $storage = $self->_get_book_path;
-    store $self->{_book}, $storage;
-    $self->{_book} = retrieve $storage;
-
-    return;
-
-}
-
-sub _get_book_path {
-
-    my $self = shift;
-    return sprintf '%s/%s', $self->{_storage_dir}, BOOK_FILENAME;
-
-}
-
-sub _save_bug {
-
-    my ( $self, $bug ) = @_;
-
-    $self->{_book}->{$bug->get_id} = $bug;
-    $self->_update_book;
-
-    return;
-
-}
-
 sub _bug_has_same_status {
 
     my ( $self, $bug_id, $current_bug_status ) = @_;
-
-    my $old_bug = $self->{_book}->{$bug_id};
+    my $old_bug = $self->{_book_storage}->get_bug_by_id($bug_id);
     return $old_bug->get_status eq $current_bug_status;
 
 }
@@ -398,7 +343,7 @@ sub _tester_is_the_same {
 
     my ( $self, $bug_id, $current_tester ) = @_;
 
-    my $old_bug = $self->{_book}->{$bug_id};
+    my $old_bug = $self->{_book_storage}->get_bug_by_id($bug_id);
     my $old_tester = $old_bug->get_rep_platform;
     return $old_tester eq $current_tester;
 
@@ -427,7 +372,7 @@ sub _delete_cached_bugs_from_book {
 
     my ( $self, $bugs ) = @_;
 
-    my @book_bug_ids = keys %{$self->{_book}};
+    my @book_bug_ids = $self->{_book_storage}->get_bug_ids;
     my %db_bug_ids = map { $_->get_id => 1 } @$bugs;
 
     # If there is a bug in the local db that is no
@@ -435,11 +380,11 @@ sub _delete_cached_bugs_from_book {
 
     foreach my $bug_id ( @book_bug_ids ) {
         if (!exists $db_bug_ids{$bug_id}) {
-            delete $self->{_book}->{$bug_id};
+            $self->{_book_storage}->delete_bug_by_id($bug_id);
         }
     }
 
-    $self->_update_book;
+    $self->{_book_storage}->update_book;
 
     return;
 
