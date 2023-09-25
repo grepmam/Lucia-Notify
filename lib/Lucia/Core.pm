@@ -47,35 +47,9 @@ sub new {
 
     bless $self, $class;
     
-    
-    $self->_create_storage_directory;
-    $self->_create_book;
     $self->_load_dictionary;
 
     return $self;
-
-}
-
-sub _create_storage_directory {
-
-    my $self = shift;
-
-    my $storage_dir = $self->{_storage_dir};
-    mkdir($storage_dir, 0700) unless -d $storage_dir;
-
-    return;
-
-}
-
-sub _create_book {
-
-    my $self = shift;
-
-    my $storage = $self->_get_book_path;
-    store {recently_created => 1}, $storage unless -e $storage;
-    $self->{_book} = retrieve $storage;
-
-    return;
 
 }
 
@@ -170,6 +144,8 @@ sub notify_for_bugs {
 
     my ( $self, $bugs_string ) = @_;
 
+    $self->_create_book;
+
     die "[x] bugs string is undefined or invalid\n"
         unless defined $bugs_string && $self->_bugs_string_is_valid($bugs_string);
 
@@ -239,6 +215,8 @@ sub notify_for_bugs {
 sub notify_for_user {
 
     my ( $self, $username ) = @_;
+
+    $self->_create_book;
 
     $self->_notify_greeting unless $self->{_nogreeting};
 
@@ -320,6 +298,31 @@ sub notify_for_user {
             )
         ) if $self->{_debug};
     }
+
+    return;
+
+}
+
+sub _create_book {
+
+    my $self = shift;
+
+    $self->_create_storage_directory;
+
+    my $storage = $self->_get_book_path;
+    store {recently_created => 1}, $storage unless -e $storage;
+    $self->{_book} = retrieve $storage;
+
+    return;
+
+}
+
+sub _create_storage_directory {
+
+    my $self = shift;
+
+    my $storage_dir = $self->{_storage_dir};
+    mkdir($storage_dir, 0700) unless -d $storage_dir;
 
     return;
 
