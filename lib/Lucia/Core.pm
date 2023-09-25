@@ -72,7 +72,7 @@ sub _create_book {
     my $self = shift;
 
     my $storage = $self->_get_book_path;
-    store {}, $storage unless -e $storage;
+    store {recently_created => 1}, $storage unless -e $storage;
     $self->{_book} = retrieve $storage;
 
     return;
@@ -257,6 +257,8 @@ sub notify_for_user {
 
     while ( 1 ) {
 
+        my $skip_assign_notification = $self->{_book}->{recently_created};
+
         $self->_wait_time_for_notification;
 
         @bugs = @{$bcp->get_bugs_by_userid($user->get_id)};
@@ -273,7 +275,7 @@ sub notify_for_user {
             # Save the bug if it doesn't exist
             if ( ! $self->_bug_exists($bug->get_id) ) {
                 $self->_save_bug($bug);
-                $self->_alert_new_assign($bug);
+                $self->_alert_new_assign($bug) unless $skip_assign_notification;
 
                 Lucia::Debugger::success(
                     sprintf("The bug %s has been saved in the Lucia's Book with status %s",
@@ -304,7 +306,12 @@ sub notify_for_user {
                 sprintf("The bug %s has been updated in the Lucia's Book with status %s",
                 $bug->get_id, $bug->get_status)
             ) if $self->{_debug};
-        }
+        };
+
+        if($skip_assign_notification){
+            $self->{_book}->{recently_created} = 0;
+            $self->_update_book();
+        };
 
         Lucia::Debugger::info(
             sprintf(
