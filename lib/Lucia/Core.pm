@@ -12,6 +12,7 @@ use Lucia::Dictionary;
 use Lucia::Debugger qw(success warning failure info);
 use Lucia::Notification::Notify;
 use Lucia::BugChurch::Proxy;
+use Lucia::Events;
 
 
 our %LUCIA_VOICES = (
@@ -27,14 +28,17 @@ sub new {
     my $self = {
 
         _time          => DEFAULT_TIME_PER_QUERY,
-        _voice_engine  => undef,
         _sound         => DEFAULT_SOUND,
         _lang          => DEFAULT_LANGUAGE,
         _debug         => DEFAULT_DEBUG,
         _nogreeting    => DEFAULT_NO_GREETING,
+        _voice_engine  => undef,
 
         _bcp           => Lucia::BugChurch::Proxy->new,
         _notify        => Lucia::Notification::Notify->new,
+
+        _evt           => Lucia::Events->new,
+        _current_evt   => undef,
 
         _resources_dir => "$RealBin/../resources",
         _storage_dir   => "$RealBin/../storage",
@@ -122,7 +126,7 @@ sub enable_voice {
     my ( $self, $is_active ) = @_;
 
     die "[x] Please provide 1 or 0\n" unless $is_active =~ /^[01]$/;
-    $self->{_voice_engine} = Lucia::ProtoTTS->new if $is_active;
+    $self->{_voice_engine} = $is_active ? Lucia::ProtoTTS->new : undef;
 
     return;
 
@@ -327,7 +331,7 @@ sub _notify_greeting {
         body   => $body,
     );
 
-    if ( $self->{_voice_engine} ) {
+    if ( $self->{_voice_engine} && !$self->{_current_evt}) {
         my $message = $self->_create_message_with_dict('VOICE_GREETING', [$username]);
         $self->_play_voice($message);
     }
@@ -437,15 +441,13 @@ sub _alert_new_assign {
 
     my $header = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN_HEADER', [ $bug->get_id ]);
     my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN_BODY');
-    my $icon = sprintf '%s/icons/notified.png', $self->{_resources_dir};
 
     $self->_send_notification(
         header => $header,
         body   => $body,
-        icon   => $icon,
     );
 
-    if ( $self->{_voice_engine} ) {
+    if ($self->{_voice_engine} && !$self->{_current_evt}) {
         my $message = $self->_create_message_with_dict('VOICE_BUG_NOTIFY_NEW_ASSIGN');
         $self->_play_voice($message);
     }
@@ -468,15 +470,13 @@ sub _alert_change {
     my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_1', [ $bug->get_status, $bug->get_resolution, $bug->get_rep_platform ]);
     $body .= $bug_alias ? $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_2', [$bug_alias])
                         : $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_3');
-    my $icon = sprintf '%s/icons/notified.png', $self->{_resources_dir};
 
     $self->_send_notification(
         header => $header,
         body   => $body,
-        icon   => $icon,
     );
 
-    if ( $self->{_voice_engine} ) {
+    if ($self->{_voice_engine} && !$self->{_current_evt}) {
         my $message = $self->_create_message_with_dict('VOICE_BUG_NOTIFY', [ $bug->get_id, $bug_alias ]);
         $self->_play_voice($message);
     }
@@ -587,17 +587,20 @@ sub _send_notification {
     my ( $self, %args ) = @_;
 
     my $notification = $self->{_notify};
-
     $notification->set_app_name('Lucia');
 
-    my $icon = sprintf '%s/icons/icon.png', $self->{_resources_dir};
+    $self->{_current_evt} = $self->{_evt}->get_current_event();
+
+    my $icon = sprintf('%s/icons/%s', $self->{_resources_dir},
+      $self->{_current_evt} ? $self->{_current_evt}->{icon} : "icon.png");
     $notification->set_app_icon($icon);
 
     $notification->set_header($args{header});
     $notification->set_body($args{body});
 
     if ($self->{_sound}) {
-        my $sound_filename = sprintf '%s/sounds/church_notification.ogg', $self->{_resources_dir};
+        my $sound_filename = sprintf('%s/sounds/%s', $self->{_resources_dir},
+          $self->{_current_evt} ? $self->{_current_evt}->{sound} : "church_notification.ogg");
         $notification->set_sound($sound_filename);
     }
 

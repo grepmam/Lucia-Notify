@@ -7,15 +7,16 @@ use FindBin qw($RealBin);
 
 use lib "$RealBin/../lib";
 use Lucia::Core;
+use Lucia::Events;
 
 my $lucia = Lucia::Core->new;
 $lucia->set_lang('en');
 $lucia->set_time(10);
 $lucia->enable_sound(0);
-$lucia->enable_voice(1);
+$lucia->enable_voice(0);
 $lucia->enable_no_greeting(1);
 $lucia->enable_debug(1);
 
-#$lucia->simulate( '1732853244' );
+$lucia->simulate( '1732853244' );
 #$lucia->notify_for_bugs( '17423' );
-$lucia->notify_for_user( 'mmartel' );
+#$lucia->notify_for_user( 'mmartel' );
