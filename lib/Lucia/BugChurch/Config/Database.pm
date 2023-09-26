@@ -4,11 +4,12 @@ use strict;
 use warnings;
 
 use DBI;
+use FindBin qw($RealBin);
 use Dotenv;
 
 use constant RECONNECT_TIME => 20;
 
-Dotenv->load;
+Dotenv->load("$RealBin/../.env");
 
 
 sub new {

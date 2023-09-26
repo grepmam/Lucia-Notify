@@ -3,7 +3,6 @@ package Lucia::Core;
 use strict;
 use warnings;
 
-use Lucia::Defaults;
 use Lucia::ProtoTTS;
 use Lucia::Dictionary;
 use Lucia::Debugger qw(success warning failure info);
@@ -13,6 +12,20 @@ use Lucia::Events;
 use Lucia::BookStorage;
 use Lucia::Utils::File qw(get_resources_dir);
 use Lucia::Utils::Language qw(lang_exists);
+
+
+use constant {
+
+    DEFAULT_TIME_PER_QUERY => 30,
+    DEFAULT_SOUND          => 0,
+    DEFAULT_VOICE          => 0,
+    DEFAULT_LANGUAGE       => 'en',
+    DEFAULT_DEBUG          => 0,
+    DEFAULT_NO_GREETING    => 0,
+
+    MIN_TIME_PER_QUERY     => 10,
+
+};
 
 
 sub new {
@@ -39,7 +52,7 @@ sub new {
     };
 
     bless $self, $class;
- 
+
     $self->_load_dictionary;
 
     return $self;
@@ -84,44 +97,32 @@ sub set_lang {
 
 sub enable_sound {
 
-    my ( $self, $is_active ) = @_;
-
-    die "[x] Please provide 1 or 0\n" unless $is_active =~ /^[01]$/;
-    $self->{_sound} = $is_active;
-
+    my $self = shift;
+    $self->{_sound} = 1;
     return;
 
 }
 
 sub enable_voice {
 
-    my ( $self, $is_active ) = @_;
-
-    die "[x] Please provide 1 or 0\n" unless $is_active =~ /^[01]$/;
-    $self->{_voice_engine} = $is_active ? Lucia::ProtoTTS->new : undef;
-
+    my $self = shift;
+    $self->{_voice_engine} = Lucia::ProtoTTS->new;
     return;
 
 }
 
 sub enable_debug {
 
-    my ( $self, $is_active ) = @_;
-
-    die "[x] Please provide 1 or 0\n" unless $is_active =~ /^[01]$/;
-    $self->{_debug} = $is_active;
-
+    my $self = shift;
+    $self->{_debug} = 1;
     return;
 
 }
 
 sub enable_no_greeting {
 
-    my ( $self, $is_active ) = @_;
-
-    die "[x] Please provide 1 or 0\n" unless $is_active =~ /^[01]$/;
-    $self->{_nogreeting} = $is_active;
-
+    my $self = shift;
+    $self->{_nogreeting} = 1;
     return;
 
 }

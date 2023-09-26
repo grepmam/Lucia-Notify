@@ -61,12 +61,12 @@
     },
 
     "TEXT_RESOLVED_FIXED_ALIAS_1": {
-        "es": "ESTÁ LISTO PARA IR A CALIDAD",
+        "es": "ESTÁ LISTO PARA IR A TESTING",
         "en": "IS READY FOR QA"
     },
 
     "TEXT_RESOLVED_FIXED_ALIAS_2": {
-        "es": "ESTÁ EN QA",
+        "es": "ESTÁ EN TESTING",
         "en": "IS QA"
     },
 
