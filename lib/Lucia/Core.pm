@@ -3,9 +3,6 @@ package Lucia::Core;
 use strict;
 use warnings;
 
-use FindBin qw($RealBin);
-use Storable qw(store retrieve);
-
 use Lucia::Defaults;
 use Lucia::ProtoTTS;
 use Lucia::Dictionary;
@@ -14,12 +11,8 @@ use Lucia::Notification::Notify;
 use Lucia::BugChurch::Proxy;
 use Lucia::Events;
 use Lucia::BookStorage;
-
-
-our %LUCIA_VOICES = (
-    es => 'Lucia',
-    en => 'Kimberly'
-);
+use Lucia::Utils::File qw(get_resources_dir);
+use Lucia::Utils::Language qw(lang_exists);
 
 
 sub new {
@@ -30,9 +23,9 @@ sub new {
 
         _time          => DEFAULT_TIME_PER_QUERY,
         _sound         => DEFAULT_SOUND,
-        _lang          => DEFAULT_LANGUAGE,
         _debug         => DEFAULT_DEBUG,
         _nogreeting    => DEFAULT_NO_GREETING,
+        _lang          => DEFAULT_LANGUAGE,
         _voice_engine  => undef,
 
         _bcp           => Lucia::BugChurch::Proxy->new,
@@ -41,12 +34,12 @@ sub new {
         _evt           => Lucia::Events->new,
         _current_evt   => undef,
 
-        _resources_dir => "$RealBin/../resources",
+        _resources_dir => get_resources_dir(),
 
     };
 
     bless $self, $class;
-    
+ 
     $self->_load_dictionary;
 
     return $self;
@@ -57,8 +50,9 @@ sub _load_dictionary {
 
     my $self = shift;
 
-    my $dict_file = sprintf '%s/translates/lexicon.json', $self->{_resources_dir};
-    $self->{_dict} = Lucia::Dictionary->new($dict_file);
+    my $lang = $self->{_lang};
+    $self->{_dict} = Lucia::Dictionary->new;
+    $self->{_dict}->set_lang($lang);
 
     return;
 
@@ -79,7 +73,11 @@ sub set_time {
 sub set_lang {
 
     my ( $self, $lang ) = @_;
+
+    die "[x] I don't know that language.\n" unless lang_exists($lang);
     $self->{_lang} = $lang;
+    $self->{_dict}->set_lang($lang);
+
     return;
 
 }
@@ -101,18 +99,6 @@ sub enable_voice {
 
     die "[x] Please provide 1 or 0\n" unless $is_active =~ /^[01]$/;
     $self->{_voice_engine} = $is_active ? Lucia::ProtoTTS->new : undef;
-
-    return;
-
-}
-
-sub set_language {
-
-    my ( $self, $lang ) = @_;
-
-    die "[x] I don't speak that language\n"
-        unless exists $LUCIA_VOICES{$lang};
-    $self->{_lang} = $lang;
 
     return;
 
@@ -144,7 +130,7 @@ sub notify_for_bugs {
 
     my ( $self, $bugs_string ) = @_;
 
-    $self->_create_book;
+    $self->_create_book_storage;
 
     die "[x] bugs string is undefined or invalid\n"
         unless defined $bugs_string && $self->_bugs_string_is_valid($bugs_string);
@@ -216,7 +202,7 @@ sub notify_for_user {
 
     my ( $self, $username ) = @_;
 
-    $self->_create_book;
+    $self->_create_book_storage;
 
     $self->_notify_greeting unless $self->{_nogreeting};
 
@@ -303,7 +289,7 @@ sub notify_for_user {
 
 }
 
-sub _create_book {
+sub _create_book_storage {
 
     my $self = shift;
     $self->{_book_storage} = Lucia::BookStorage->new;
@@ -316,8 +302,8 @@ sub _notify_greeting {
     my $self = shift;
 
     my $username = $ENV{USER};
-    my $header = $self->_create_message_with_dict('TEXT_GREETING_NOTIFY_HEADER', [$username]);
-    my $body = $self->_create_message_with_dict('TEXT_GREETING_NOTIFY_BODY');
+    my $header = $self->{_dict}->get_formatted_definition('TEXT_GREETING_NOTIFY_HEADER', [$username]);
+    my $body = $self->{_dict}->get_formatted_definition('TEXT_GREETING_NOTIFY_BODY');
 
     $self->_send_notification(
         header => $header,
@@ -325,7 +311,7 @@ sub _notify_greeting {
     );
 
     if ( $self->{_voice_engine} && !$self->{_current_evt}) {
-        my $message = $self->_create_message_with_dict('VOICE_GREETING', [$username]);
+        my $message = $self->{_dict}->get_formatted_definition('VOICE_GREETING', [$username]);
         $self->_play_voice($message);
     }
 
@@ -394,8 +380,8 @@ sub _alert_new_assign {
 
     my ( $self, $bug ) = @_;
 
-    my $header = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN_HEADER', [ $bug->get_id ]);
-    my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_NEW_ASSIGN_BODY');
+    my $header = $self->{_dict}->get_formatted_definition('TEXT_BUG_NOTIFY_NEW_ASSIGN_HEADER', [ $bug->get_id ]);
+    my $body = $self->{_dict}->get_formatted_definition('TEXT_BUG_NOTIFY_NEW_ASSIGN_BODY');
 
     $self->_send_notification(
         header => $header,
@@ -403,7 +389,7 @@ sub _alert_new_assign {
     );
 
     if ($self->{_voice_engine} && !$self->{_current_evt}) {
-        my $message = $self->_create_message_with_dict('VOICE_BUG_NOTIFY_NEW_ASSIGN');
+        my $message = $self->{_dict}->get_formatted_definition('VOICE_BUG_NOTIFY_NEW_ASSIGN');
         $self->_play_voice($message);
     }
 
@@ -421,10 +407,10 @@ sub _alert_change {
         status     => $bug->get_status
     );
 
-    my $header = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_HEADER', [ $bug->get_id, $bug->get_description ]);
-    my $body = $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_1', [ $bug->get_status, $bug->get_resolution, $bug->get_rep_platform ]);
-    $body .= $bug_alias ? $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_2', [$bug_alias])
-                        : $self->_create_message_with_dict('TEXT_BUG_NOTIFY_BODY_3');
+    my $header = $self->{_dict}->get_formatted_definition('TEXT_BUG_NOTIFY_HEADER', [ $bug->get_id, $bug->get_description ]);
+    my $body = $self->{_dict}->get_formatted_definition('TEXT_BUG_NOTIFY_BODY_1', [ $bug->get_status, $bug->get_resolution, $bug->get_rep_platform ]);
+    $body .= $bug_alias ? $self->{_dict}->get_formatted_definition('TEXT_BUG_NOTIFY_BODY_2', [$bug_alias])
+                        : $self->{_dict}->get_formatted_definition('TEXT_BUG_NOTIFY_BODY_3');
 
     $self->_send_notification(
         header => $header,
@@ -432,7 +418,7 @@ sub _alert_change {
     );
 
     if ($self->{_voice_engine} && !$self->{_current_evt}) {
-        my $message = $self->_create_message_with_dict('VOICE_BUG_NOTIFY', [ $bug->get_id, $bug_alias ]);
+        my $message = $self->{_dict}->get_formatted_definition('VOICE_BUG_NOTIFY', [ $bug->get_id, $bug_alias ]);
         $self->_play_voice($message);
     }
 
@@ -449,19 +435,19 @@ sub _create_alias_for_bug_status {
     my $status     = $args{status};
 
     my %status_aliases = (
-        'NEW'      => $self->_create_message_with_dict('TEXT_NEW_ALIAS'),
-        'REOPENED' => $self->_create_message_with_dict('TEXT_REOPENED_ALIAS'),
-        'ASSIGNED' => $self->_create_message_with_dict('TEXT_ASSIGNED_ALIAS'),
+        'NEW'      => $self->{_dict}->get_formatted_definition('TEXT_NEW_ALIAS'),
+        'REOPENED' => $self->{_dict}->get_formatted_definition('TEXT_REOPENED_ALIAS'),
+        'ASSIGNED' => $self->{_dict}->get_formatted_definition('TEXT_ASSIGNED_ALIAS'),
         'RESOLVED' => {
             'FIXED' => {
-                'Sin Asignar' => $self->_create_message_with_dict('TEXT_RESOLVED_FIXED_ALIAS_1'),
-                'Asignado' => $self->_create_message_with_dict('TEXT_RESOLVED_FIXED_ALIAS_2'),
+                'Sin Asignar' => $self->{_dict}->get_formatted_definition('TEXT_RESOLVED_FIXED_ALIAS_1'),
+                'Asignado' => $self->{_dict}->get_formatted_definition('TEXT_RESOLVED_FIXED_ALIAS_2'),
             },
         },
         'VERIFIED' => {
-            'FIXED' => $self->_create_message_with_dict('TEXT_VERIFIED_FIXED_ALIAS'),
+            'FIXED' => $self->{_dict}->get_formatted_definition('TEXT_VERIFIED_FIXED_ALIAS'),
         },
-        'REOPENED-MERGE' => $self->_create_message_with_dict('TEXT_REOPENED_MERGE_ALIAS'),
+        'REOPENED-MERGE' => $self->{_dict}->get_formatted_definition('TEXT_REOPENED_MERGE_ALIAS'),
     );
 
     my $alias = $status_aliases{$status};
@@ -504,7 +490,7 @@ sub _wait_time_for_notification {
 sub _create_dummy_bug {
 
     my ( $self, $bug_id ) = @_;
-    my $description  = $self->_create_message_with_dict('TEXT_SIMULATE_DESCRIPTION');
+    my $description  = $self->{_dict}->get_formatted_definition('TEXT_SIMULATE_DESCRIPTION');
 
     require Lucia::BugChurch::Entities::Bug;
 
@@ -516,24 +502,6 @@ sub _create_dummy_bug {
     $bug->set_resolution('FIXED');
 
     return $bug;
-
-}
-
-sub _create_message_with_dict {
-
-    my ( $self, $term, $items ) = @_;
-
-    my $lang = $self->{_lang};
-    my $dict = $self->{_dict};
-
-    my $message = $dict->get_definition($term, $lang);
-
-    if ( $items ) {
-        my @items = @{$items};
-        $message = sprintf $message, @items;
-    }
-
-    return $message;
 
 }
 
@@ -571,7 +539,7 @@ sub _play_voice {
 
     my $prototts = $self->{_voice_engine};
     $prototts->set_message($message);
-    $prototts->set_voice($LUCIA_VOICES{ $self->{_lang} });
+    $prototts->set_lang($self->{_lang});
     $prototts->play;
 
     return;

@@ -8,14 +8,21 @@ use Encode qw(encode);
 use File::Which qw(which);
 use LWP::UserAgent;
 
+use Lucia::Utils::Language qw(lang_exists);
 
 use constant {
     
     TTS_SERVICE    => 'ttsmp3',
-    DEFAULT_VOICE  => 'Kimberly',
+    ENGLISH_VOICE  => 'Kimberly',
+    SPANISH_VOICE  => 'Lucia',
     MAX_CHARACTERS => 3000
 
 };
+
+our %VOICES = (
+    en => ENGLISH_VOICE,
+    es => SPANISH_VOICE
+);
 
 our $ua = LWP::UserAgent->new;
 our $service_url = sprintf 'https://%s.com', TTS_SERVICE;
@@ -28,7 +35,7 @@ sub new {
     return bless {
 
         _message => '',
-        _voice   => DEFAULT_VOICE,
+        _voice   => ENGLISH_VOICE,
         _source  => TTS_SERVICE
 
     }, $class;
@@ -48,10 +55,10 @@ sub set_message {
 
 }
 
-sub set_voice {
+sub set_lang {
 
-    my ( $self, $voice ) = @_;
-    $self->{_voice} = $voice;
+    my ( $self, $lang ) = @_;
+    $self->{_voice} = $VOICES{$lang};
     return;
 
 }

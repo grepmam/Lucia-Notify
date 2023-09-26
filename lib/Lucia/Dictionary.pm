@@ -3,27 +3,55 @@ package Lucia::Dictionary;
 use strict;
 use warnings;
 
-use Lucia::Utils::File;
+use Lucia::Utils::File qw(get_resources_dir load_json);
 
+use constant LEXICON_DIR      => sprintf '%s/translates', get_resources_dir();
+use constant LEXICON_FILENAME => 'lexicon.json';
+use constant LEXICON_FILEPATH => sprintf '%s/%s', LEXICON_DIR, LEXICON_FILENAME;
 
 sub new {
 
-    my ( $class, $dict_file ) = @_;
+    my $class = shift;
 
     my $self = {
-        _lexicon => Lucia::Utils::File::load_json($dict_file)
+        _lang    => undef,
+        _lexicon => load_json(LEXICON_FILEPATH)
     };
 
     return bless $self, $class;
 
 }
 
-sub get_definition {
+sub set_lang {
 
-    my ( $self, $term, $lang ) = @_;
+    my ($self, $lang) = @_;    
+    $self->{_lang} = $lang;
+    return;
+
+}
+
+sub _get_definition {
+
+    my ($self, $term) = @_;
 
     my $lexicon = $self->{_lexicon};
+    my $lang = $self->{_lang};
     my $definition = $lexicon->{$term}->{$lang};
+
+    return $definition;
+
+}
+
+sub get_formatted_definition {
+
+    my ($self, $term, $items) = @_;
+
+    my $definition = $self->_get_definition($term);
+
+    if ($items) {
+        my @items = @{$items};
+        $definition = sprintf $definition, @items;
+    }
 
     return $definition;
 
