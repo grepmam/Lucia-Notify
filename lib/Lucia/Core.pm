@@ -407,15 +407,16 @@ sub _get_bug_status_term {
     my $tester = $args{tester};
 
     my $bug_statuses = $self->{_bug_statuses};
+    my $term = $bug_statuses->{$status};
 
-    my $status_info = $bug_statuses->{$status};
-    return $status_info unless ref $status_info eq 'HASH';
+    if (ref $term eq 'HASH') {
+        $term = $term->{$resolution};
+        if (ref $term eq 'HASH') {
+            $term = $term->{$tester} // $term->{Asignado};
+        }
+    }
 
-    my $resolution_info = $status_info->{$resolution};
-    return $resolution_info unless ref $resolution_info eq 'HASH';
-
-    return $resolution_info->{'Sin Asignar'} if $tester eq 'Sin Asignar';
-    return $resolution_info->{Asignado};
+    return $term;
 }
 
 # This method is responsible for creating a false bug for Simulate mode
