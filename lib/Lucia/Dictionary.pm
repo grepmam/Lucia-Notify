@@ -10,7 +10,6 @@ use constant LEXICON_FILENAME => 'lexicon.json';
 use constant LEXICON_FILEPATH => sprintf '%s/%s', LEXICON_DIR, LEXICON_FILENAME;
 
 sub new {
-
     my $class = shift;
 
     my $self = {
@@ -19,19 +18,15 @@ sub new {
     };
 
     return bless $self, $class;
-
 }
 
 sub set_lang {
-
     my ($self, $lang) = @_;    
     $self->{_lang} = $lang;
     return;
-
 }
 
-sub _get_definition {
-
+sub get_definition {
     my ($self, $term) = @_;
 
     my $lexicon = $self->{_lexicon};
@@ -39,14 +34,12 @@ sub _get_definition {
     my $definition = $lexicon->{$term}->{$lang};
 
     return $definition;
-
 }
 
 sub get_formatted_definition {
-
     my ($self, $term, $items) = @_;
 
-    my $definition = $self->_get_definition($term);
+    my $definition = $self->get_definition($term);
 
     if ($items) {
         my @items = @{$items};
@@ -54,8 +47,6 @@ sub get_formatted_definition {
     }
 
     return $definition;
-
 }
-
 
 1;

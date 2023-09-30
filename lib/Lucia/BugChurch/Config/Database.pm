@@ -13,8 +13,8 @@ Dotenv->load("$RealBin/../.env");
 
 
 sub new {
-
     my $class = shift;
+
     my $self = {
         _db_data => {
             driver => 'mysql',
@@ -27,22 +27,17 @@ sub new {
     };
 
     bless $self,$class;
-
     return $self;
-
 }
 
-sub get_conn_string {
-    
+sub get_conn_string {    
     my $self = shift;
 
     my %db_data = %{$self->{_db_data}};
     return join ':', ('DBI', @db_data{ qw|driver schema host port| });
-
 }
 
 sub get_connection {
-
     my $self = shift;
     my $conn;
     my $dsn = $self->get_conn_string();
@@ -64,17 +59,12 @@ sub get_connection {
     $conn->do(q|SET NAMES 'latin1' COLLATE 'latin1_spanish_ci'|);
 
     return $conn;
-
 }
 
 sub display_db_error {
-
     my $message = sprintf "Error connecting to DB. Retrying in %d seconds...\n", RECONNECT_TIME;
     print $message;
-
     return;
-
 }
-
 
 1;

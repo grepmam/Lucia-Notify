@@ -24,16 +24,14 @@ our $EVENTS = {
     },
 };
 
-sub new {
 
+sub new {
     my $class = shift;
     return bless {}, $class;
-
 }
 
 sub _get_datetime_obj {
-
-    my ( $self, $datetime_str ) = @_;
+    my ($self, $datetime_str) = @_;
 
     die "[x] Datetime string must be in the following format: dd-mm (one digit per side allowed).\n"
         unless $datetime_str =~ DATETIME_REGEX;
@@ -47,11 +45,9 @@ sub _get_datetime_obj {
     );
 
     return $datetime_obj;
-
 }
 
 sub get_current_event {
-
     my $self = shift;
 
     my $current_date_obj = DateTime->now(
@@ -73,7 +69,6 @@ sub get_current_event {
     }
 
     return;
-
 }
 
 1;

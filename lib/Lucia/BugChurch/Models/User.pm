@@ -8,17 +8,12 @@ use Lucia::BugChurch::Entities::User;
 
 
 sub new {
-
     my $class = shift;
-    return bless {
-        _dbh => Lucia::BugChurch::Config::Database->new
-    }, $class;
-
+    return bless { _dbh => Lucia::BugChurch::Config::Database->new }, $class;
 }
 
 sub get_user_by_username {
-
-    my ( $self, $username ) = @_;
+    my ($self, $username) = @_;
 
     my $conn = $self->{_dbh}->get_connection();
     my $query_template = q|
@@ -43,7 +38,6 @@ sub get_user_by_username {
     $conn->disconnect();
 
     return $user;
-
 }
 
 1;

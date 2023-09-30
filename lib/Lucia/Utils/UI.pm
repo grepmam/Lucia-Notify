@@ -5,14 +5,13 @@ use warnings;
 
 
 use constant {
-
     SOFTWARE_NAME  => 'Lucia Notify',
     CREATOR        => 'grepmam',
     VERSION        => '2.0.0',
     VERSION_STATUS => 'unstable',
     VERSION_NAME   => 'Saga'
-
 };
+
 
 sub _get_collaborators {
     my @collaborators_list = ('andrezgz', 'aholtz');
@@ -20,7 +19,6 @@ sub _get_collaborators {
 }
 
 sub show_banner {
-
     my $collaborators = _get_collaborators();
 
     my $banner = sprintf('
@@ -46,11 +44,9 @@ sub show_banner {
     print $banner;
 
     return;
-
 }
 
 sub show_version {
-
     my $version = sprintf "%s version %s-%s %s\n",
         SOFTWARE_NAME,
         VERSION,
@@ -63,7 +59,6 @@ sub show_version {
 }
 
 sub show_help {
-
     my $help = qq|
 Usage: lucia COMMAND {ARGUMENT} [OPTIONS]
 
@@ -109,7 +104,6 @@ EXAMPLES:
     print $help;
 
     return;
-
 }
 
 1;

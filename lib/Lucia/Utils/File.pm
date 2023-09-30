@@ -11,8 +11,8 @@ our @EXPORT_OK = qw(get_resources_dir load_json);
 
 
 sub load_json {
-
     my $file_path = shift;
+
     my $json = JSON->new;
     open my $fh, '<', $file_path or die "[x] Can't open the file: $!\n";
     my $json_text = do { local $/; <$fh> }; 
@@ -21,7 +21,6 @@ sub load_json {
     my $data = decode_json $json_text;
 
     return $data;
-
 }
 
 sub get_resources_dir {

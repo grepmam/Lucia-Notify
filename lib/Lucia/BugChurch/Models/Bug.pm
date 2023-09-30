@@ -9,17 +9,12 @@ use Lucia::BugChurch::Entities::User;
 
 
 sub new {
-
     my $class = shift;
-    return bless {
-        _dbh => Lucia::BugChurch::Config::Database->new
-    }, $class;
-
+    return bless { _dbh => Lucia::BugChurch::Config::Database->new }, $class;
 }
 
 sub get_bugs_by_ids {
-
-    my ( $self, $ids ) = @_;
+    my ($self, $ids) = @_;
 
     my $conn = $self->{_dbh}->get_connection();
     my $query_template = q|
@@ -54,12 +49,10 @@ sub get_bugs_by_ids {
     $conn->disconnect();
 
     return \@bugs;
-
 }
 
 sub get_bugs_by_userid {
-
-    my ( $self, $userid ) = @_;
+    my ($self, $userid) = @_;
 
     my $conn = $self->{_dbh}->get_connection();
     my $query_template = q|
@@ -100,7 +93,6 @@ sub get_bugs_by_userid {
     $conn->disconnect();
 
     return \@bugs;
-
 }
 
 1;
