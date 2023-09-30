@@ -450,19 +450,20 @@ sub _get_random_status {
     my @statuses = keys %{$bug_statuses};
     my $status = _get_random_element(\@statuses);
 
-    return ($status, '', 'Sin Asignar') unless
-        ref $bug_statuses->{$status} eq 'HASH';
+    return ($status, '', 'Sin Asignar')
+        unless ref $bug_statuses->{$status} eq 'HASH';
 
     my @resolutions = keys %{$bug_statuses->{$status}};
     my $resolution = _get_random_element(\@resolutions);
 
-    return ($status, $resolution, 'Sin Asignar') unless
-        ref $bug_statuses->{$status}->{$resolution} eq 'HASH';
+    return ($status, $resolution, 'Sin Asignar')
+        unless ref $bug_statuses->{$status}->{$resolution} eq 'HASH';
 
     my @testers = keys %{$bug_statuses->{$status}->{$resolution}};
     my $tester = _get_random_element(\@testers);
 
-    return ($status, $resolution, 'Sin Asignar') unless $tester eq 'Asignado';
+    return ($status, $resolution, 'Sin Asignar')
+        unless $tester eq 'Asignado';
 
     my @names = ('Emily', 'Decon', 'Julianna', 'Donald');
     $tester = _get_random_element(\@names);
