@@ -17,20 +17,23 @@ sub get_bugs_by_ids {
     my ($self, $ids) = @_;
 
     my $conn = $self->{_dbh}->get_connection();
-    my $query_template = q|
+
+    my @found_ids = split /,/, $ids;
+    my $bugs_placeholders = join ',', ('?') x @found_ids;
+    my $query_template= "
         SELECT bu.bug_id, bu.bug_status, bu.short_desc,
                bu.rep_platform, bu.resolution,
                pr.realname 
         FROM bugs as bu
         INNER JOIN profiles as pr
             ON pr.userid = bu.assigned_to
-        WHERE bu.bug_id IN (?);
-    |;
+        WHERE bu.bug_id IN ($bugs_placeholders);
+    ";
 
     my $sth = $conn->prepare($query_template);
-    $sth->execute($ids);
+    $sth->execute(@found_ids);
 
-    my @bugs;
+    my @bugs = ();
 
     while (my $row = $sth->fetchrow_hashref) {
 
