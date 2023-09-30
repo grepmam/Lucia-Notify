@@ -22,6 +22,7 @@ main() {
     install_perl_dependencies
     download_lucia
     export_lucia_bin
+    create_config_with_example
 
     print_success 'Lucia has been installed successfully'
 }
@@ -90,6 +91,12 @@ export_lucia_bin() {
     echo "$line" >> $bashrc
 
     print_success 'Lucia has been exported'
+}
+
+create_config_with_example() {
+    print_process 'Create config .env with example...'
+    cp $LUCIA_INSTALL_DIR/.env.example $LUCIA_INSTALL_DIR/.env
+    print_success 'Config created'
 }
 
 # Utils Functions
