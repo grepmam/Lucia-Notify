@@ -1,0 +1,12 @@
+[Unit]
+Description=Lucia Notify v1.2.0 stable
+Requires=x_start.service
+After=x_start.service
+
+[Service]
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+Environment="PULSE_RUNTIME_PATH=/run/user/1000/pulse/"
+ExecStart=
+
+[Install]
+WantedBy=default.target
