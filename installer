@@ -105,7 +105,7 @@ create_config_with_example() {
 
     local env_file=$LUCIA_INSTALL_DIR/.env
     cp $LUCIA_INSTALL_DIR/.env.example $env_file
-    nano $env_file
+    nano --saveonexit $env_file
 
     print_success 'Config created'
 }
