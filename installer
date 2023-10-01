@@ -9,6 +9,7 @@
 RED='\e[31m'
 GREEN='\e[32m'
 YELLOW='\e[33m'
+BLUE='\e[34m'
 RESET='\e[0m'
 
 LUCIA_INSTALL_DIR=$HOME/Lucia
@@ -20,9 +21,13 @@ main() {
     add_perl_repository
     install_general_dependencies
     install_perl_dependencies
+
     download_lucia
     export_lucia_bin
+
     create_config_with_example
+
+    create_systemd_service
 
     print_success 'Lucia has been installed successfully'
 }
@@ -66,7 +71,9 @@ install_perl_dependencies() {
 download_lucia() {
     print_process 'Downloading Lucia Notify...'
 
-    rm --recursive --force $LUCIA_INSTALL_DIR 2>/dev/null
+    if [ -d "$LUCIA_INSTALL_DIR" ]; then
+        rm --recursive --force $LUCIA_INSTALL_DIR 2>/dev/null
+    fi
 
     git clone --branch $LUCIA_BRANCH https://github.com/grepmam/Lucia-Notify.git $LUCIA_INSTALL_DIR
     if [ $? -ne 0 ]; then
@@ -80,23 +87,98 @@ download_lucia() {
 export_lucia_bin() {
     print_process 'Exporting Lucia Script...'
 
-    bashrc=$HOME/.bashrc
-    line='export PATH=$PATH:$HOME/Lucia/bin'
+    local bashrc=$HOME/.bashrc
+    local line='export PATH=$PATH:$HOME/Lucia/bin'
 
-    grep "$line" $bashrc &>/dev/null
-    if [ $? -eq 0 ]; then
+    if grep --quiet "$line" $bashrc; then
         echo "$(grep --invert-match "$line" $bashrc)" > $bashrc
     fi
 
     echo "$line" >> $bashrc
+    source $bashrc
 
     print_success 'Lucia has been exported'
 }
 
 create_config_with_example() {
     print_process 'Create config .env with example...'
-    cp $LUCIA_INSTALL_DIR/.env.example $LUCIA_INSTALL_DIR/.env
+
+    local env_file=$LUCIA_INSTALL_DIR/.env
+    cp $LUCIA_INSTALL_DIR/.env.example $env_file
+    nano $env_file
+
     print_success 'Config created'
+}
+
+create_systemd_service() {
+    local systemd_user_dir=$HOME/.config/systemd/user
+
+    if confirm "Do you want Lucia to run when you start the system?"; then
+        create_systemd_user_directory $systemd_user_dir
+        create_services $systemd_user_dir
+        reload_services
+        enable_services
+        start_services
+    fi
+}
+
+create_systemd_user_directory() {
+    print_process 'Creating systemd user directory...'
+
+    mkdir --parents $1 2>/dev/null
+    chmod 0700 $1
+
+    print_success 'Created'
+}
+
+create_services() {
+    local systemd_dir="$1"
+
+    create_service "x_start" "$LUCIA_INSTALL_DIR/scripts/x_start" "$systemd_dir"
+    create_service "lucia" "$LUCIA_INSTALL_DIR/scripts/lucia-daemon" "$systemd_dir"
+}
+
+create_service() {
+    local service_name="$1"
+    local script_path="$2"
+    local systemd_dir="$3"
+
+    print_process "Creating $service_name SystemD service..."
+
+    local service_file="$LUCIA_INSTALL_DIR/systemd/$service_name.service"
+    cp "$service_file" "$systemd_dir"
+    sed -i "s|ExecStart=|ExecStart=$script_path|g" "$systemd_dir/$service_name.service"
+
+    print_success "$service_name Service created"
+}
+
+reload_services() {
+
+    systemctl --user daemon-reload
+    if [ $? -ne 0 ]; then
+        print_error 'Services could not be reloaded'
+        exit 1
+    fi
+
+    print_success 'Reloaded services'
+}
+
+enable_services() {
+    print_process "Enabling services..."
+
+    systemctl --user enable x_start
+    systemctl --user enable lucia
+
+    print_success 'Enabled services'
+}
+
+start_services() {
+    print_process "Starting services..."
+
+    systemctl --user start x_start
+    systemctl --user start lucia
+
+    print_success 'Services started'
 }
 
 # Utils Functions
@@ -114,6 +196,19 @@ print_banner() {
 
 EOF
 
+}
+
+confirm() {
+    message=$(echo -e "[${BLUE}-${RESET}] $1 (yes/no): ")
+
+    while true; do
+        read -p "$message" response
+        case $response in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) print_error 'Please answer yes or no';;
+        esac
+    done
 }
 
 print_error() {
