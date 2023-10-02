@@ -148,7 +148,7 @@ create_service() {
 
     local service_file="$LUCIA_INSTALL_DIR/systemd/$service_name.service"
     cp "$service_file" "$systemd_dir"
-    sed -i "s|ExecStart=|ExecStart=$script_path|g" "$systemd_dir/$service_name.service"
+    sed --in-place "s|ExecStart=|ExecStart=$script_path|g" "$systemd_dir/$service_name.service"
 
     print_success "$service_name Service created"
 }
