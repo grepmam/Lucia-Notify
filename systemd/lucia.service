@@ -7,6 +7,7 @@ After=x_start.service
 Environment="XDG_RUNTIME_DIR=/run/user/1000"
 Environment="PULSE_RUNTIME_PATH=/run/user/1000/pulse/"
 ExecStart=
+Restart=always
 
 [Install]
 WantedBy=default.target
