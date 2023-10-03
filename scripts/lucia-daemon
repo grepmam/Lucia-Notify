@@ -1,6 +1,9 @@
 #!/bin/bash
 
-export $(grep -v '^#' ../.env | xargs -d '\n')
+SCRIPT=$(realpath "$0")
+LUCIA_DIR="$(dirname "$SCRIPT")/.."
+
+export $(grep -v '^#' $LUCIA_DIR/.env | xargs -d '\n')
 
 if   [[ "$LUCIA_USER_COMMAND" = true ]]; then MAIN_PARAM="user $LUCIA_USERNAME" 
 elif [[ "$LUCIA_BUGS_COMMAND" = true ]]; then MAIN_PARAM="bugs $LUCIA_BUGS"
@@ -16,4 +19,4 @@ if [[ "$LUCIA_VOICE" = true ]]; then VOICE_PARAM='--voice'; fi
 
 LANG_PARAM="--lang $LUCIA_LANG"
 
-lucia $MAIN_PARAM $SOUND_PARAM --time $LUCIA_TIME $BANNER_PARAM $GREETING_PARAM $VOICE_PARAM $LANG_PARAM
+$LUCIA_DIR/bin/lucia $MAIN_PARAM $SOUND_PARAM --time $LUCIA_TIME $BANNER_PARAM $GREETING_PARAM $VOICE_PARAM $LANG_PARAM
