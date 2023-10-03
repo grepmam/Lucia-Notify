@@ -7,7 +7,7 @@
 
   <a href="https://github.com/grepmam">![grepmam](https://img.shields.io/badge/Created%20by-Grepmam-red)</a>
   <a href="https://www.perl.org/">![perl](https://img.shields.io/badge/Written%20in-Perl-green)</a>
-  <a>![version](https://img.shields.io/badge/Version-Frigg-yellow)</a>
+  <a>![version](https://img.shields.io/badge/Version-Saga-yellow)</a>
 
 </div>
 
