@@ -12,7 +12,7 @@ YELLOW='\e[33m'
 BLUE='\e[34m'
 RESET='\e[0m'
 
-LUCIA_INSTALL_DIR=$HOME/Lucia
+LUCIA_INSTALL_DIR=$HOME/Lucia-Notify
 LUCIA_BRANCH='v2.0.0'
 
 main() {
