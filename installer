@@ -90,7 +90,7 @@ export_lucia_bin() {
     print_process 'Exporting Lucia Script...'
 
     local bashrc=$HOME/.bashrc
-    local line='export PATH=$PATH:$HOME/Lucia/bin'
+    local line="export PATH=\$PATH:$LUCIA_INSTALL_DIR/bin"
 
     if grep --quiet "$line" $bashrc; then
         echo "$(grep --invert-match "$line" $bashrc)" > $bashrc
