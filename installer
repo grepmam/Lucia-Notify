@@ -18,7 +18,7 @@ LUCIA_BRANCH='v2.0.0'
 main() {
     print_banner
 
-    add_perl_repository
+    enable_universe_repository
     install_general_dependencies
     install_perl_dependencies
 
@@ -32,22 +32,24 @@ main() {
     print_success 'Lucia has been installed successfully'
 }
 
-add_perl_repository() {
-    print_process 'Adding Perl repository to APT...'
+enable_universe_repository() {
+    print_process 'Enabling Universe repository to APT...'
 
     sudo add-apt-repository universe
     if [ $? -ne 0 ]; then
-        print_error 'An error occurred while adding the Perl repositories'
+        print_error 'An error occurred while adding Universe repository'
         exit 1
     fi
 
-    print_success 'Added repositories'
+    sudo apt-get update -y
+
+    print_success 'Repository enabled'
 }
 
 install_general_dependencies() {
     print_process 'Installing general dependencies...'
 
-    sudo apt install cpanminus libmysqlclient-dev libdbi-perl libdbd-mysql-perl git mpv -y
+    sudo apt-get install cpanminus libmysqlclient-dev libdbi-perl libdbd-mysql-perl git mpv -y
     if [ $? -ne 0 ]; then
         print_error 'Failed to install dependencies'
         exit 1
