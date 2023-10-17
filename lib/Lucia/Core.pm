@@ -321,9 +321,9 @@ sub simulate {
     my @bug_ids = split /,/, $bugs_string;
 
     foreach my $bug_id (@bug_ids) {
+        sleep $self->{_time};
         my $bug = $self->_create_dummy_bug($bug_id);
         $self->_alert_change($bug);
-        sleep $self->{_time};
     }
 
     return;
