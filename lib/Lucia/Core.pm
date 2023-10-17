@@ -16,14 +16,16 @@ use Lucia::Utils::Language qw(lang_exists);
 
 
 use constant {
-    DEFAULT_TIME_PER_QUERY => 30,
-    DEFAULT_SOUND          => 0,
-    DEFAULT_VOICE          => 0,
-    DEFAULT_LANGUAGE       => 'en',
-    DEFAULT_DEBUG          => 0,
-    DEFAULT_NO_GREETING    => 0,
+    DEFAULT_TIME_PER_QUERY    => 30,
+    DEFAULT_NOTIFICATION_TIME => 25,
+    DEFAULT_SOUND             => 0,
+    DEFAULT_VOICE             => 0,
+    DEFAULT_LANGUAGE          => 'en',
+    DEFAULT_DEBUG             => 0,
+    DEFAULT_NO_GREETING       => 0,
 
-    MIN_TIME_PER_QUERY     => 10,
+    MIN_TIME_PER_QUERY        => 10,
+    MIN_NOTIFICATION_TIME     => 10,
 };
 
 
@@ -33,6 +35,7 @@ sub new {
     my $self = {
 
         _time          => DEFAULT_TIME_PER_QUERY,
+        _notif_time    => DEFAULT_NOTIFICATION_TIME,
         _sound         => DEFAULT_SOUND,
         _debug         => DEFAULT_DEBUG,
         _nogreeting    => DEFAULT_NO_GREETING,
@@ -74,6 +77,16 @@ sub set_time {
     die "[x] That time is nonsense, something coherent please\n"
         unless $time >= MIN_TIME_PER_QUERY;
     $self->{_time} = $time;
+
+    return;
+}
+
+sub set_notification_time {
+    my ($self, $time) = @_;
+
+    die "[x] That time is nonsense, something coherent please\n"
+        unless $time > MIN_NOTIFICATION_TIME;
+    $self->{_notif_time} = $time;
 
     return;
 }
@@ -485,6 +498,7 @@ sub _send_notification {
 
     $notification->set_header($args{header});
     $notification->set_body($args{body});
+    $notification->set_expire_timeout($self->{_notif_time});
 
     if ($self->{_sound}) {
         my $sound_filename = sprintf('%s/sounds/%s', $self->{_resources_dir},

@@ -26,6 +26,7 @@ sub main {
         'lang|l:s',
         'debug|d',
         'time|t:i',
+        'notify-timeout:i',
         'no-greeting',
         'help',
         'no-banner',
@@ -91,6 +92,7 @@ sub initialize_lucia {
 
     $lucia->set_lang($args->{lang}) if $args->{lang};
     $lucia->set_time($args->{time}) if $args->{time};
+    $lucia->set_notification_time($args->{'notify-timeout'}) if $args->{'notify-timeout'};
     $lucia->enable_sound if $args->{sound};
     $lucia->enable_voice if $args->{voice};
     $lucia->enable_no_greeting if $args->{'no-greeting'};

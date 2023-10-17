@@ -71,26 +71,27 @@ it for you.
 
 Available commands:
 
-  user                   Notify user by username
-  bugs                   Notify user by set of bug IDs
-  simulate               Create a fake notification in a 10 second interval
+  user                        Notify user by username
+  bugs                        Notify user by set of bug IDs
+  simulate                    Create a fake notification in a 10 second interval
 
 
 Command flags:
 
-  -s, --sound            Activate sound notification
-  -v, --voice            Activate Lucia's voice
-  -l, --lang LANG        Change Lucia's language. Languages: es (spanish) and en (english). Default: us.
-  -d, --debug            Activate debugging mode
-  -t, --time TIME        Time per query to the database. Default: 30
-      --no-greeting      Don't display Lucia greeting
+  -s, --sound                 Activate sound notification
+  -v, --voice                 Activate Lucia's voice
+  -l, --lang LANG             Change Lucia's language. Languages: es (spanish) and en (english). Default: us.
+  -d, --debug                 Activate debugging mode
+  -t, --time TIME             Time per query to the database. Default: 30
+      --notify-timeout TIME   Notification expiration time. Default: 25 
+      --no-greeting           Don't display Lucia greeting
 
 
 Global flags:
 
-  -h, --help             Display this
-      --no-banner        Don't display banner
-      --version          Display version
+  -h, --help                  Display this
+      --no-banner             Don't display banner
+      --version               Display version
 
 
 EXAMPLES:
