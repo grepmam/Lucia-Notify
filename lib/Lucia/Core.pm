@@ -255,7 +255,7 @@ sub notify_for_user {
             ) if $self->{_debug};
         };
 
-        if($skip_assign_notification){
+        if ($skip_assign_notification) {
             $self->{_book_storage}->enable_used_book;
             $self->{_book_storage}->update_book;
         };

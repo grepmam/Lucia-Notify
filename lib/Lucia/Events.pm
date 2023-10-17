@@ -54,8 +54,6 @@ sub get_current_event {
         time_zone => DATETIME_TIME_ZONE
     )->truncate(to => 'day');
 
-    my $event;
-
     foreach my $event_name (keys %$EVENTS) {
         my ($min_date, $max_date) = @{$EVENTS->{$event_name}->{date}};
         my $min_date_obj = $self->_get_datetime_obj($min_date);
