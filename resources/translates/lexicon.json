@@ -91,7 +91,7 @@
     },
 
     "VOICE_BUG_NOTIFY": {
-        "es": "El bag número %d ha cambiado de estado. El bag '%s'. Revise Bagzila.",
+        "es": "El bag número %d cambió de estado. El bag '%s'. Revise Bagzila.",
         "en": "Bug number %d has changed state. The bug '%s'. Review Bugzila."
     },
 
