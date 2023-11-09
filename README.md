@@ -17,7 +17,7 @@ Lucia Notify is a tool that will notify you in case a Bugzilla bug changes its s
 
 Lucia, a nun from the town, had a special gift. Every day in church, she asked God to reveal important changes in people's lives. She kept a book and wrote down divine messages, which were sometimes good and sometimes bad.
 The people trusted Lucía, knowing that she would share the news with them, whether happy or sad. Her gift strengthened the community, uniting everyone in times of celebration and support in difficult times.
-Lucia, the divine messenger, continued to be a beacon of hope in the town, bringing comfort and joy, no matter what message God sent her.
+Lucia, the divine messenger, continued to be a beacon of hope in the town, bringing comfort and joy, no matter what message God sent her. 
 
 ## Wiki
 
