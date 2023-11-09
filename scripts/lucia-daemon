@@ -1,19 +1,12 @@
 #!/bin/bash
 
-FILENAME='.env'
+SCRIPT=$(realpath "$0")
+LUCIA_DIR="$(dirname "$SCRIPT")/.."
 
-cd $HOME/Lucia-Notify/ 
+export $(grep -v '^#' $LUCIA_DIR/.env | xargs -d '\n')
 
-if ! [[ -e $FILENAME ]]; then
-    echo "File $FILENAME does not exists"
-    exit 1
-fi
-
-export $(grep -v '^#' .env | xargs -d '\n')
-
-if   [[ "$LUCIA_USER_OPTION" = true ]]; then MAIN_PARAM="--user $LUCIA_USERNAME" 
-elif [[ "$LUCIA_BUGS_OPTION" = true ]]; then MAIN_PARAM="--bugs $LUCIA_BUGS"
-elif [[ "$LUCIA_BUG_OPTION"  = true ]]; then MAIN_PARAM="--bugid $LUCIA_BUG_ID"
+if   [[ "$LUCIA_USER_COMMAND" = true ]]; then MAIN_PARAM="user $LUCIA_USERNAME" 
+elif [[ "$LUCIA_BUGS_COMMAND" = true ]]; then MAIN_PARAM="bugs $LUCIA_BUGS"
 else
     echo 'Cant continue if you dont set a main option'
     exit 1
@@ -26,4 +19,4 @@ if [[ "$LUCIA_VOICE" = true ]]; then VOICE_PARAM='--voice'; fi
 
 LANG_PARAM="--lang $LUCIA_LANG"
 
-exec ./lucia-notify $MAIN_PARAM $SOUND_PARAM --time $LUCIA_TIME $BANNER_PARAM $GREETING_PARAM $VOICE_PARAM $LANG_PARAM
+$LUCIA_DIR/bin/lucia $MAIN_PARAM $SOUND_PARAM --time $LUCIA_TIME --notify-timeout $LUCIA_NOTIFICATION_TIME $BANNER_PARAM $GREETING_PARAM $VOICE_PARAM $LANG_PARAM

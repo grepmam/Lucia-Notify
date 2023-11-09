@@ -1,0 +1,104 @@
+{
+
+    "TEXT_SIMULATE_DESCRIPTION": {
+        "es": "Problema de escalación de privilegios en aula virtual",
+        "en": "Privilege escalation problem in virtual classroom"
+    },
+
+    "TEXT_GREETING_NOTIFY_HEADER": {
+        "es": "Bienvenido %s! Soy la hermana Lucía.",
+        "en": "Welcome %s! I'm sister Lucia."
+    },
+
+    "TEXT_GREETING_NOTIFY_BODY": {
+        "es": "Te avisaré cuando el señor me contacte. Si tienes alguna duda, ejecuta: lucia --help",
+        "en": "I will notify you when the lord contacts me. If you have any questions, run: lucia --help"
+    },
+
+    "TEXT_BUG_NOTIFY_HEADER": {
+        "es": "Bug #%d - %s",
+        "en": "Bug #%d - %s"
+    },
+
+    "TEXT_BUG_NOTIFY_BODY_1": {
+        "es": "Dios me ha notificado! El estado del bug es %s %s con el tester %s.",
+        "en": "God has notified me! The bug status is %s %s with tester %s. "
+    },
+
+    "TEXT_BUG_NOTIFY_BODY_2": {
+        "es": "El bug %s.",
+        "en": "So the bug %s."
+    },
+
+    "TEXT_BUG_NOTIFY_BODY_3": {
+        "es": "No estoy segura de qué estado está en la tabla.",
+        "en": "I'm not sure what status it has on the board."
+    },
+
+    "TEXT_BUG_NOTIFY_NEW_ASSIGN_HEADER": {
+        "es": "Nuevo bug asignado #%d",
+        "en": "New bug assigned #%d"
+    },
+
+    "TEXT_BUG_NOTIFY_NEW_ASSIGN_BODY": {
+        "es": "El señor me ha pedido que te notifique sobre tu nueva misión.",
+        "en": "The Lord has asked me to notify you about your new mission."
+    },
+
+    "TEXT_NEW_ALIAS": {
+        "es": "ESTÁ LISTO PARA EMPEZAR A DESARROLLAR",
+        "en": "IS READY FOR DEV"
+    },
+
+    "TEXT_REOPENED_ALIAS": {
+        "es": "FUE REABIERTO",
+        "en": "WAS REOPENED"
+    },
+
+    "TEXT_ASSIGNED_ALIAS": {
+        "es": "ESTÁ EN DESARROLLO",
+        "en": "IN DEV"
+    },
+
+    "TEXT_RESOLVED_FIXED_ALIAS_1": {
+        "es": "ESTÁ LISTO PARA IR A TESTING",
+        "en": "IS READY FOR QA"
+    },
+
+    "TEXT_RESOLVED_FIXED_ALIAS_2": {
+        "es": "ESTÁ EN TESTING",
+        "en": "IS QA"
+    },
+
+    "TEXT_VERIFIED_FIXED_ALIAS": {
+        "es": "ESTÁ FINALIZADO",
+        "en": "IS DONE"
+    },
+
+    "TEXT_REOPENED_MERGE_ALIAS": {
+        "es": "ESTÁ EN ESPERA",
+        "en": "IS AWAITING"
+    },
+
+    "VOICE_TESTING": {
+        "es": "Esta es una prueba de notificación.",
+        "en": "This is a proof of notification."
+    },
+
+    "VOICE_GREETING": {
+        "es": "Bienvenido %s! Soy la hermana Lucía. Te avisaré cuando Dios me contacte. Si tiene alguna duda, revise la documentación.",
+        "en": "Welcome %s! I'm sister Lucia. I'll let you know when God contacts me. If you have any questions, read the documentation."
+    },
+
+    "VOICE_BUG_NOTIFY": {
+        "es": "El bag número %d cambió de estado. El bag '%s'. Revise Bagzila.",
+        "en": "Bug number %d has changed state. The bug '%s'. Review Bugzila."
+    },
+
+    "VOICE_BUG_NOTIFY_NEW_ASSIGN": {
+        "es": "El señor te ha asignado una nueva misión.",
+        "en": "The Lord has assigned you a new mission."
+    }
+
+
+}

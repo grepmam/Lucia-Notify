@@ -1,0 +1,229 @@
+#!/bin/bash
+
+#########################################
+#                                       #
+#           LUCIA INSTALLER             #
+#                                       #
+#########################################
+
+RED='\e[31m'
+GREEN='\e[32m'
+YELLOW='\e[33m'
+BLUE='\e[34m'
+RESET='\e[0m'
+
+LUCIA_INSTALL_DIR=$HOME/Lucia-Notify
+LUCIA_BRANCH='main'
+
+main() {
+    print_banner
+
+    enable_universe_repository
+    install_general_dependencies
+    install_perl_dependencies
+
+    download_lucia
+    export_lucia_bin
+    create_config_with_example
+
+    link_notification_with_service
+
+    create_systemd_service
+
+    print_success 'Lucia has been installed successfully'
+}
+
+enable_universe_repository() {
+    print_process 'Enabling Universe repository to APT...'
+
+    sudo add-apt-repository universe
+    if [ $? -ne 0 ]; then
+        print_error 'An error occurred while adding Universe repository'
+        exit 1
+    fi
+
+    sudo apt-get update -y
+
+    print_success 'Repository enabled'
+}
+
+install_general_dependencies() {
+    print_process 'Installing general dependencies...'
+
+    sudo apt-get install cpanminus libmysqlclient-dev libdbi-perl libdbd-mysql-perl git mpv notification-daemon -y
+    if [ $? -ne 0 ]; then
+        print_error 'Failed to install dependencies'
+        exit 1
+    fi
+
+    print_success 'Installed dependencies'
+}
+
+install_perl_dependencies() {
+    print_process 'Installing Perl dependencies...'
+
+    sudo cpanm Net::DBus Dotenv File::Which LWP::Simple JSON JSON::MaybeXS DateTime
+    if [ $? -ne 0 ]; then
+        print_error 'Failed to install Perl dependencies'
+        exit 1
+    fi
+
+    print_success 'Installed Perl dependencies'
+}
+
+download_lucia() {
+    print_process 'Downloading Lucia Notify...'
+
+    if [ -d "$LUCIA_INSTALL_DIR" ]; then
+        rm --recursive --force $LUCIA_INSTALL_DIR 2>/dev/null
+    fi
+
+    git clone --branch $LUCIA_BRANCH https://github.com/grepmam/Lucia-Notify.git $LUCIA_INSTALL_DIR
+    if [ $? -ne 0 ]; then
+        print_error 'Failed to download Lucia from GIT'
+        exit 1
+    fi
+
+    print_success 'Lucia downloaded successfully'
+}
+
+export_lucia_bin() {
+    print_process 'Exporting Lucia Script...'
+
+    local bashrc=$HOME/.bashrc
+    local line="export PATH=\$PATH:$LUCIA_INSTALL_DIR/bin"
+
+    if grep --quiet "$line" $bashrc; then
+        echo "$(grep --invert-match "$line" $bashrc)" > $bashrc
+    fi
+
+    echo "$line" >> $bashrc
+    source $bashrc
+
+    print_success 'Lucia has been exported'
+}
+
+create_config_with_example() {
+    print_process 'Create config .env with example...'
+
+    local env_file=$LUCIA_INSTALL_DIR/.env
+    cp $LUCIA_INSTALL_DIR/.env.example $env_file
+
+    nano $env_file
+
+    print_success 'Config created'
+}
+
+link_notification_with_service() {
+    local notification_daemon_path='/usr/lib/notification-daemon/notification-daemon'
+    local notification_server='org.freedesktop.Notifications'
+    local service_path="/usr/share/dbus-1/services/$notification_server.service"
+
+    print_process 'Linking notification server with service...'
+    echo -e "[D-BUS Service]\nName=$notification_server\nExec=$notification_daemon_path" | sudo tee $service_path > /dev/null
+    print_success 'Linked'
+}
+
+create_systemd_service() {
+    local systemd_user_dir=$HOME/.config/systemd/user
+
+    if confirm "Do you want Lucia to run when you start the system?"; then
+        create_systemd_user_directory $systemd_user_dir
+        create_service $systemd_user_dir
+        reload_service
+        enable_service
+        start_service
+    fi
+}
+
+create_systemd_user_directory() {
+    local systemd_dir=$1
+
+    print_process 'Creating systemd user directory...'
+
+    mkdir --parents $systemd_dir 2>/dev/null
+    chmod 0700 $systemd_dir
+
+    print_success 'Created'
+}
+
+create_service() {
+    local systemd_dir=$1
+    local service_name='lucia'
+    local script_path="$LUCIA_INSTALL_DIR/scripts/lucia-daemon"
+
+    print_process "Creating $service_name SystemD service..."
+
+    local service_file="$LUCIA_INSTALL_DIR/systemd/$service_name.service"
+    cp "$service_file" "$systemd_dir"
+    sed --in-place "s|ExecStart=|ExecStart=$script_path|g" "$systemd_dir/$service_name.service"
+
+    print_success "$service_name Service created"
+}
+
+reload_service() {
+    systemctl --user daemon-reload
+
+    if [ $? -ne 0 ]; then
+        print_error 'Services could not be reloaded'
+        exit 1
+    fi
+
+    print_success 'Reloaded services'
+}
+
+enable_service() {
+    print_process "Enabling service..."
+    systemctl --user enable lucia
+    print_success 'Enabled service'
+}
+
+start_service() {
+    print_process "Starting service..."
+    systemctl --user start lucia
+    print_success 'Service started'
+}
+
+# Utils Functions
+
+print_banner() {
+
+    cat <<'EOF'
+  _           _        ___         _        _ _         
+ | |  _  _ __(_)__ _  |_ _|_ _  __| |_ __ _| | |___ _ _ 
+ | |_| || / _| / _` |  | || ' \(_-<  _/ _` | | / -_) '_|
+ |____\_,_\__|_\__,_| |___|_||_/__/\__\__,_|_|_\___|_|
+
+ Created by: grepmam
+ version: 1.2.0
+
+EOF
+
+}
+
+confirm() {
+    message=$(echo -e "[${BLUE}-${RESET}] $1 (yes/no): ")
+
+    while true; do
+        read -p "$message" response
+        case $response in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) print_error 'Please answer yes or no';;
+        esac
+    done
+}
+
+print_error() {
+    echo -e "[${RED}x${RESET}] $1"
+}
+
+print_success() {
+    echo -e "[${GREEN}+${RESET}] $1"
+}
+
+print_process() {
+    echo -e "[${YELLOW}*${RESET}] $1"
+}
+
+main

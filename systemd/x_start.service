@@ -3,7 +3,7 @@ Description=Monitor X server start
 
 [Service]
 Type=oneshot
-ExecStart=/home/<user>/Lucia-Notify/scripts/x_start
+ExecStart=
 
 [Install]
 WantedBy=default.target

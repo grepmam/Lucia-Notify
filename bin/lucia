@@ -1,0 +1,120 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Getopt::Long qw(GetOptions);
+use POSIX qw(EXIT_FAILURE EXIT_SUCCESS);
+
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+
+use Lucia::Core;
+use Lucia::Utils::UI;
+
+exit main();
+
+sub main {
+    Getopt::Long::Configure('noauto_abbrev');
+
+    my %args;
+
+    GetOptions(
+        \%args,
+        'sound|s',
+        'voice|v',
+        'lang|l:s',
+        'debug|d',
+        'time|t:i',
+        'notify-timeout:i',
+        'no-greeting',
+        'help',
+        'no-banner',
+        'version',
+    ) or die unknown_option();
+
+    show_banner() unless $args{'no-banner'};
+
+    if ($args{version}) {
+        show_version();
+        return EXIT_SUCCESS;
+    }
+
+    if (!@ARGV || $args{help}) {
+        show_help();
+        return EXIT_FAILURE;
+    }
+
+    my ($command, $argument) = @ARGV;
+
+    my %commands = (
+        user     => \&process_user_command,
+        bugs     => \&process_bugs_command,
+        simulate => \&process_simulate_command,
+    );
+
+    die "[x] Command does not exist.\n" unless exists $commands{$command};
+    die "[x] Argument cannot be empty.\n" unless defined $argument && $argument;
+
+    my $lucia = initialize_lucia(\%args);
+
+    my $lucia_command = $commands{$command};
+    $lucia_command->($lucia, $argument);
+
+    return EXIT_SUCCESS;
+}
+
+sub unknown_option {
+    show_banner();
+    show_help();
+    return;
+}
+
+sub show_banner {
+    Lucia::Utils::UI::show_banner;
+    return;
+}
+
+sub show_version {
+    Lucia::Utils::UI::show_version;
+    return;
+}
+
+sub show_help {
+    Lucia::Utils::UI::show_help;
+    return;
+}
+
+sub initialize_lucia {
+    my ($args) = @_;
+
+    my $lucia = Lucia::Core->new;
+
+    $lucia->set_lang($args->{lang}) if $args->{lang};
+    $lucia->set_time($args->{time}) if $args->{time};
+    $lucia->set_notification_time($args->{'notify-timeout'}) if $args->{'notify-timeout'};
+    $lucia->enable_sound if $args->{sound};
+    $lucia->enable_voice if $args->{voice};
+    $lucia->enable_no_greeting if $args->{'no-greeting'};
+    $lucia->enable_debug if $args->{debug};
+
+    return $lucia;
+}
+
+sub process_user_command {
+    my ($lucia, $argument) = @_;
+    $lucia->notify_for_user($argument);
+    return;
+}
+
+sub process_bugs_command {
+    my ($lucia, $argument) = @_;
+    $lucia->notify_for_bugs($argument);
+    return;
+}
+
+sub process_simulate_command {
+    my ($lucia, $argument) = @_;
+    $lucia->simulate($argument);
+    return;
+}
