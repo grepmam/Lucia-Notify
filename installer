@@ -146,8 +146,8 @@ create_systemd_user_directory() {
 
 create_service() {
     local systemd_dir=$1
-    local service_name='lucia-daemon'
-    local script_path="$LUCIA_INSTALL_DIR/scripts/lucia"
+    local service_name='lucia'
+    local script_path="$LUCIA_INSTALL_DIR/scripts/lucia-daemon"
 
     print_process "Creating $service_name SystemD service..."
 
