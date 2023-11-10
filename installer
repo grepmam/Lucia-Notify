@@ -118,7 +118,10 @@ link_notification_with_service() {
     local notification_daemon_path='/usr/lib/notification-daemon/notification-daemon'
     local notification_server='org.freedesktop.Notifications'
     local service_path="/usr/share/dbus-1/services/$notification_server.service"
-    echo -e "[D-BUS Service]\nName=$notification_server\nExec=$notification_daemon_path" | sudo tee $service_path
+
+    print_process 'Linking notification server with service...'
+    echo -e "[D-BUS Service]\nName=$notification_server\nExec=$notification_daemon_path" | sudo tee $service_path > /dev/null
+    print_success 'Linked'
 }
 
 create_systemd_service() {
