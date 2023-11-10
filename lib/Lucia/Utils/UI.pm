@@ -35,7 +35,7 @@ sub show_banner {
 
             Created by: %s
 
-       Collaborators %s
+       Collaborators: %s
 
          Version: %s (%s)
 
@@ -73,7 +73,7 @@ Available commands:
 
   user                        Notify user by username
   bugs                        Notify user by set of bug IDs
-  simulate                    Create a fake notification in a 10 second interval
+  simulate                    Create a fake notification
 
 
 Command flags:
