@@ -24,8 +24,9 @@ main() {
 
     download_lucia
     export_lucia_bin
-
     create_config_with_example
+
+    link_notification_with_service
 
     create_systemd_service
 
@@ -49,7 +50,7 @@ enable_universe_repository() {
 install_general_dependencies() {
     print_process 'Installing general dependencies...'
 
-    sudo apt-get install cpanminus libmysqlclient-dev libdbi-perl libdbd-mysql-perl git mpv -y
+    sudo apt-get install cpanminus libmysqlclient-dev libdbi-perl libdbd-mysql-perl git mpv notification-daemon -y
     if [ $? -ne 0 ]; then
         print_error 'Failed to install dependencies'
         exit 1
@@ -111,6 +112,13 @@ create_config_with_example() {
     nano $env_file
 
     print_success 'Config created'
+}
+
+link_notification_with_service() {
+    local notification_daemon_path='/usr/lib/notification-daemon/notification-daemon'
+    local notification_server='org.freedesktop.Notifications'
+    local service_path="/usr/share/dbus-1/services/$notification_server.service"
+    echo -e "[D-BUS Service]\nName=$notification_server\nExec=$notification_daemon_path" | sudo tee $service_path
 }
 
 create_systemd_service() {
