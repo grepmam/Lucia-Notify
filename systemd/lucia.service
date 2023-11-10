@@ -1,7 +1,5 @@
 [Unit]
 Description=Lucia Notify v2.0.0 unstable
-Requires=x_start.service
-After=x_start.service
 
 [Service]
 Environment="XDG_RUNTIME_DIR=/run/user/1000"

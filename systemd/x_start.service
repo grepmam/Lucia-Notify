@@ -1,9 +1,0 @@
-[Unit]
-Description=Monitor X server start
-
-[Service]
-Type=oneshot
-ExecStart=
-
-[Install]
-WantedBy=default.target
