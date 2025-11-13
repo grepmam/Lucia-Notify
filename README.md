@@ -23,10 +23,11 @@ Lucia, the divine messenger, continued to be a beacon of hope in the town, bring
 
 Read the ![documentation](https://github.com/grepmam/Lucia-Notify/wiki) to learn how to use the program.
 
-## Tests on 
+## Tests on
 
 * Mint 20
-* Mint 21 
+* Mint 21
+* Fedora 43
 
 ***Nota:** This program is only made for Linux systems.*
 
