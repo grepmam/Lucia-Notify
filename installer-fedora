@@ -3,6 +3,7 @@
 #########################################
 #                                       #
 #           LUCIA INSTALLER             #
+#              (Fedora)                 #
 #                                       #
 #########################################
 
@@ -18,7 +19,6 @@ LUCIA_BRANCH='main'
 main() {
     print_banner
 
-    enable_universe_repository
     install_general_dependencies
     install_perl_dependencies
 
@@ -33,24 +33,10 @@ main() {
     print_success 'Lucia has been installed successfully'
 }
 
-enable_universe_repository() {
-    print_process 'Enabling Universe repository to APT...'
-
-    sudo add-apt-repository universe
-    if [ $? -ne 0 ]; then
-        print_error 'An error occurred while adding Universe repository'
-        exit 1
-    fi
-
-    sudo apt-get update -y
-
-    print_success 'Repository enabled'
-}
-
 install_general_dependencies() {
     print_process 'Installing general dependencies...'
 
-    sudo apt-get install cpanminus libmysqlclient-dev libdbi-perl libdbd-mysql-perl git mpv notification-daemon -y
+    sudo dnf install perl-App-cpanminus perl-devel mariadb-devel perl-DBI perl-DBD-MySQL git mpv notification-daemon gcc make dbus-devel perl-LWP-Protocol-https perl-IO-Socket-SSL expat-devel -y
     if [ $? -ne 0 ]; then
         print_error 'Failed to install dependencies'
         exit 1
@@ -62,7 +48,7 @@ install_general_dependencies() {
 install_perl_dependencies() {
     print_process 'Installing Perl dependencies...'
 
-    sudo cpanm --notest Net::DBus Dotenv File::Which LWP::Simple JSON JSON::MaybeXS DateTime
+    sudo cpanm --notest XML::Parser XML::Twig Net::DBus Dotenv File::Which LWP::Simple JSON JSON::MaybeXS DateTime
     if [ $? -ne 0 ]; then
         print_error 'Failed to install Perl dependencies'
         exit 1
@@ -73,6 +59,9 @@ install_perl_dependencies() {
 
 download_lucia() {
     print_process 'Downloading Lucia Notify...'
+
+    # Change to a safe directory before removing the install directory
+    cd /tmp
 
     if [ -d "$LUCIA_INSTALL_DIR" ]; then
         rm --recursive --force $LUCIA_INSTALL_DIR 2>/dev/null
@@ -195,7 +184,7 @@ print_banner() {
  |____\_,_\__|_\__,_| |___|_||_/__/\__\__,_|_|_\___|_|
 
  Created by: grepmam
- version: 1.2.0
+ version: 1.2.0 (Fedora)
 
 EOF
 
